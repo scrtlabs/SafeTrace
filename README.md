@@ -1,5 +1,5 @@
 # COVID-19 Self-reporting with Privacy
-Privacy preserving voluntary Covid-19 self-reporting platform. Share your (encrypted) location history and test status, get a notification if you have had been in proxmity to a higher risk regions. 
+Privacy preserving voluntary COVID-19 self-reporting platform. Share your (encrypted) location history and test status, get a notification if you have had been in proximity to a higher risk locations. 
 
 
 ## Overview & Motivation
@@ -11,9 +11,9 @@ This system relies on 3 core services:
 
 ### Location History data from Google Location Services via Google Takeout
 
-Any user who has Location Services active with google is able to obtain a JSON format file of their location history. They are also able to edit this file manually to remove any unwanted or sensitive locations (i.e., a home address). A user who does not use Location Services can manually add a history via Google. 
+Any user who has Location Services active with Google is able to obtain a JSON format file of their location history. They are also able to edit this file manually to remove any unwanted or sensitive locations (i.e., a home address). A user who does not use Location Services can manually add a history via Google. 
 
-***note: This service could be swapped/replaced by a mobile application at some point***
+***Note: This service could be swapped/replaced by a mobile application at some point***
 
 ### A Privacy-preserving Computation service
 
@@ -22,15 +22,15 @@ Private computation is a term for performing tasks on data that is never viewed 
 - Add noise to user locations, and then output that data to a map without revealing the original data to anyone, including application developers or server owners
 - Analyse and create clusters from user data, and output those results to a map without revealing original data to anyone
 TBD (we welcome suggestions for computational analysis that provides privacy guarantees as well as useful, high-fidelity output data)
-- We propose using an Intel-SGX based service that uses [Trusted Execution Environments ](https://software.intel.com/en-us/sgx/details) (TEE). Additional private compute techniques include homomorphic encryption, multiparty computation, and differential privacy.
+- Initially, we propose using an Intel-SGX based service that uses [Trusted Execution Environments ](https://software.intel.com/en-us/sgx/details) (TEE). Additional alternative private compute techniques include homomorphic encryption, multiparty computation, and differential privacy.
 
 ### Visualization and notification services
 
 Our working assumption is to:
-- inform individuals who have been in close proximity of individuals who have tested positive via a notification system. This section is TBD based on requirements defined by experts
-- create a visualization service for users (individual and social organizations) to track the current status virus outbreak at a granular level. 
+- Inform individuals who have been in close proximity of individuals who have tested positive via a notification system. This section is TBD based on requirements defined by experts
+- Create a visualization service for users (individual and social organizations) to track the current status virus outbreak at a granular level. 
 
-These diagrams provides an overview of how these services connect and how data is accessed and controlled throughout. Note: data is encrypted on the client side, remains encrypted in transit, and is protected by TEE guarantees during compute. 
+These diagrams provide an overview of how these services connect and how data is accessed and controlled throughout. *Note: data is encrypted on the client side, remains encrypted in transit, and is protected by TEE security and privacy guarantees during compute.*
 
 ![image](docs/diagrams/Data-control.png)
 
@@ -41,11 +41,11 @@ These diagrams provides an overview of how these services connect and how data i
 2. User views instructions for retrieving location data from Google Location services. 
 3. User reviews Google Maps timeline, and optionally removes any sensitive activity (i.e., home address, work address, others)
 4. User exports her data via Google Takeout service
-5. User returns to app UI and uploads JSON file from Google Takeout for the previous month / 2 months
+5. User returns to app UI and uploads JSON file from Google Takeout for the previous month or two
 6. User indicates her current testing status (positive, negative, untested) and the date of the test (today's date if untested)
 7. User submits data to compute service (data is encrypted locally by the app prior to sending)
 8. User can now view "matches", where her data overlaps in time and proximity to a user reporting a positive test result
-9. User will receive emails if new matches occur, and prompting her to update her data and infection status periodically. 
+9. User can opt in to receive emails if new matches occur, and prompting her to update her data and infection status periodically. 
 
 
 ## System Architecture
@@ -73,7 +73,7 @@ Other elements such as global results are planned but not currently in scope.
 
 ### Data self-reporting UI
 **Requirements:**
-- Clearly communicates to users the risks and objectives of the service
+- Clearly communicates to users the goals and possible risks of the service
 - Walks users through obtaining and sanitizing Google Takeout location data
 - Provides https-like assurances that UI is in communication with successfully attested enclave
 - Enables users to create a persistent email/password log-in
