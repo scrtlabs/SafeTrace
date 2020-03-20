@@ -32,7 +32,7 @@ Our working assumption is to:
 
 This diagram provides an overview of how these services connect and how data is accessed and controlled throughout. Note: data is encrypted on the client side, remains encrypted in transit, and is protected by TEE guarantees during compute. 
 
-[DIAGRAM TK]
+![image](diagrams/overview.png)
 
 ## Get Involved
 
