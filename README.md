@@ -1,5 +1,5 @@
 # covid-self-reporting
-Privacy preserving voluntary Covid-19 self-reporting platform. Share your location history and status, get alerts you are in high risk areas and identify high risk regions 
+Privacy preserving voluntary Covid-19 self-reporting platform. Share your (encrypted) location history and test status, get a notification if you have had been in proxmity to a higher risk regions. 
 
 
 ## Overview & Motivation
