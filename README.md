@@ -51,7 +51,43 @@ This diagram provides an overview of how these services connect and how data is 
 
 ## System Architecture
 
+
+
 ## Components
+
+### Data self-reporting UI
+**Requirements:**
+- Clearly communicates to users the risks and objectives of the service
+- Walks users through obtaining and sanitizing Google Takeout location data
+- Provides https-like assurances that UI is in communication with successfully attested enclave
+- Enables users to create a persistent email/password log-in
+- Enables users to submit, and update:
+    - 1-2 months of location history in Google Takeout JSON format
+    - Current infection status (positive, negative, untested)
+    - Date test was administered
+**Open Questions**
+What are our options for data validation?
+
+### Private compute
+**Requirements:**
+- Proves what code is being executed over the data
+- Proves integrity via Intel Attestation Service (IAS)
+
+Input:
+Encrypted user location histories in Google Takeout JSON format
+
+Output:
+Positive matches between users who have had positive test results and users who overlapped with them on time and proximity 
+
+Open Questions
+
+### Post-Compute Results
+Current thinking is to have two services result from the computation:
+- A notification service for users who are untested/negative that tells them if they have overlapped in time/proximity with positive test cases [Link to detailed description]
+- An aggregate heatmap of locations where individuals with positive tests have been [Link to detailed description]
+
+Open Questions
+
 
 ## Reference
 
