@@ -53,13 +53,19 @@ These diagrams provides an overview of how these services connect and how data i
 ![image](diagrams/overview.png)
 
 The system is made up from the following components:
+
 **Front-end UI**
+
 - contains the self-reporting UI
 - displays the individual proximity match report from post-compute results
+
 **Login / Unique identifier DB**
+
 **Private Compute Service**
+
 - contains code
 - maintains a DB of submissions
+
 
 Other elements such as global results are planned but not currently in scope. 
 
