@@ -34,7 +34,7 @@ These diagrams provides an overview of how these services connect and how data i
 
 ![image](diagrams/overview.png)
 
-![image](diagrams/Data control.png)
+![image](diagrams/Data-control.png)
 
 
 ## User Story
