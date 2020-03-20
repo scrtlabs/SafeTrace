@@ -84,6 +84,8 @@ Other elements such as global results are planned but not currently in scope.
 **Open Questions**
 What are our options for data validation?
 
+![img](diagrams/adding-data.png)
+
 ### Private compute
 **Requirements:**
 - Proves what code is being executed over the data
