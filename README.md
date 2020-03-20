@@ -30,9 +30,11 @@ Our working assumption is to:
 - inform individuals who have been in close proximity of individuals who have tested positive via a notification system. This section is TBD based on requirements defined by experts
 - create a visualization service for users (individual and social organizations) to track the current status virus outbreak at a granular level. 
 
-This diagram provides an overview of how these services connect and how data is accessed and controlled throughout. Note: data is encrypted on the client side, remains encrypted in transit, and is protected by TEE guarantees during compute. 
+These diagrams provides an overview of how these services connect and how data is accessed and controlled throughout. Note: data is encrypted on the client side, remains encrypted in transit, and is protected by TEE guarantees during compute. 
 
 ![image](diagrams/overview.png)
+
+![image](diagrams/Data control.png)
 
 
 ## User Story
