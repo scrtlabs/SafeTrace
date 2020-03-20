@@ -106,9 +106,6 @@ Current thinking is to have two services result from the computation:
 
 Open Questions
 
-
-## Reference
-
 ## Get Involved
 Below is a list of areas that we need help with and our open questions
 - Epidemiologists / public health: 
@@ -132,3 +129,6 @@ Front-end development for self-reporting UI
 - Volunteers to provide sample data:
 Our proposal only provides value if volunteers participate. We welcome everyone who’s tested for Covid-19 to share their location history in a privacy preserving manner when we have an initial prototype
 
+## LICENSE
+
+The code in this repository is released under the [MIT License](LICENSE).
