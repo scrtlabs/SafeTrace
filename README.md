@@ -32,8 +32,6 @@ Our working assumption is to:
 
 These diagrams provides an overview of how these services connect and how data is accessed and controlled throughout. Note: data is encrypted on the client side, remains encrypted in transit, and is protected by TEE guarantees during compute. 
 
-![image](diagrams/overview.png)
-
 ![image](diagrams/Data-control.png)
 
 
@@ -52,7 +50,18 @@ These diagrams provides an overview of how these services connect and how data i
 
 ## System Architecture
 
+![image](diagrams/overview.png)
 
+The system is made up from the following components:
+**Front-end UI**
+- contains the self-reporting UI
+- displays the individual proximity match report from post-compute results
+**Login / Unique identifier DB**
+**Private Compute Service**
+- contains code
+- maintains a DB of submissions
+
+Other elements such as global results are planned but not currently in scope. 
 
 ## Components
 
