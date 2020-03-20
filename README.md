@@ -13,7 +13,7 @@ This system relies on 3 core services:
 
 Any user who has Location Services active with google is able to obtain a JSON format file of their location history. They are also able to edit this file manually to remove any unwanted or sensitive locations (i.e., a home address). A user who does not use Location Services can manually add a history via Google. 
 
-![image](diagrams/adding-data.png)
+***note: This service could be swapped/replaced by a mobile application at some point***
 
 ### A Privacy-preserving Computation service
 
@@ -37,6 +37,17 @@ This diagram provides an overview of how these services connect and how data is 
 ## Get Involved
 
 ## User Story
+
+1. User creates an account (email and password)
+2. User views instructions for retrieving location data from Google Location services. 
+3. User reviews Google Maps timeline, and optionally removes any sensitive activity (i.e., home address, work address, others)
+4. User exports her data via Google Takeout service
+5. User returns to app UI and uploads JSON file from Google Takeout for the previous month / 2 months
+6. User indicates her current testing status (positive, negative, untested) and the date of the test (today's date if untested)
+7. User submits data to compute service (data is encrypted locally by the app prior to sending)
+8. User can now view "matches", where her data overlaps in time and proximity to a user reporting a positive test result
+9. User will receive emails if new matches occur, and prompting her to update her data and infection status periodically. 
+
 
 ## System Architecture
 
