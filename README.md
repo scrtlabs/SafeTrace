@@ -13,6 +13,8 @@ This system relies on 3 core services:
 
 Any user who has Location Services active with google is able to obtain a JSON format file of their location history. They are also able to edit this file manually to remove any unwanted or sensitive locations (i.e., a home address). A user who does not use Location Services can manually add a history via Google. 
 
+![image](diagrams/adding-data.png)
+
 ### A Privacy-preserving Computation service
 
 Private computation is a term for performing tasks on data that is never viewed in plaintext. Our system will use private computation to generate individual and global analytics. In this scenario, private computation techniques could be employed to:
