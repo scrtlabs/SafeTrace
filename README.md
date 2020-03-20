@@ -32,7 +32,7 @@ Our working assumption is to:
 
 These diagrams provides an overview of how these services connect and how data is accessed and controlled throughout. Note: data is encrypted on the client side, remains encrypted in transit, and is protected by TEE guarantees during compute. 
 
-![image](diagrams/Data-control.png)
+![image](docs/diagrams/Data-control.png)
 
 
 ## User Story
@@ -50,7 +50,7 @@ These diagrams provides an overview of how these services connect and how data i
 
 ## System Architecture
 
-![image](diagrams/overview.png)
+![image](docs/diagrams/overview.png)
 
 The system is made up from the following components:
 
@@ -84,7 +84,7 @@ Other elements such as global results are planned but not currently in scope.
 **Open Questions**
 What are our options for data validation?
 
-![img](diagrams/adding-data.png)
+![img](docs/diagrams/adding-data.png)
 
 ### Private compute
 **Requirements:**
