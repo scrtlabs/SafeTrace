@@ -91,4 +91,26 @@ Open Questions
 
 ## Reference
 
+## Get Involved
+Below is a list of areas that we need help with and our open questions
+- Epidemiologists / public health: 
+We need to solicit feedback on how this data is most actionable both for individuals and also the society at large. The goal of individual reporting is to assess situations of close proximity to high risk individuals. This enables us to take better measures. We need feedback to understand what distance and time difference should trigger a high risk scenario (i.e 2 individuals within 10ft in a 1 day window can infect one another). We also would welcome feedback on our approach to global view visualizer. Please see issues X and Y that explain these asks in more detail.
+
+- Rust programmers, developers and engineers with Intel SGX experience
+TBD - Enigma team is currently volunteering to lead this part. We would always welcome more hands
+
+- Mapping/visualization and experience working with Google Location data:  
+
+- Notification / alert system:
+We would like individuals who opt in to receive emails (or other forms of notification like text) if they are found to be in a high risk area. We need help implementing the notification system. Please see the following issue for more details
+
+- Data privacy (i.e., able to identify data leakage concerns / mitigations)
+
+- Front-end design
+Front-end development for self-reporting UI 
+
+- Devops
+
+- Volunteers to provide sample data:
+Our proposal only provides value if volunteers participate. We welcome everyone who’s tested for Covid-19 to share their location history in a privacy preserving manner when we have an initial prototype
 
