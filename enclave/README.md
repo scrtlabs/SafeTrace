@@ -49,7 +49,11 @@ This folder contains the code that runs inside the enclave using Intel Secure Gu
     ./app
     ```
 
-    *Note: This code is very particular, and you need to run `./app` from inside the `bin` folder. If you try to run it from anywhere else (e.g. its parent folder, as in `./bin/app`), you will get the following error, because it expects another file in the same folder from where the command is run: `[-] Init Enclave Failed SGX_ERROR_ENCLAVE_FILE_ACCESS!`*
+    *Note: This code is very particular, and you need to run `./app` from inside the `bin` folder. If you try to run it from anywhere else (e.g. its parent folder, as in `./bin/app`), you will get the following error, because it expects another file in the same folder from where the command is run:* 
+
+    ```bash
+    [-] Init Enclave Failed SGX_ERROR_ENCLAVE_FILE_ACCESS!`*
+    ```
 
     Which should print something similar to this:
 
