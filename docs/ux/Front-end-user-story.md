@@ -23,7 +23,8 @@ After Bob adds his location history, he’d be shown whether he’s been in clos
 - Distance: This shows the approximate distance between Bob and Alice near location A.
 - Time: Time difference between when Alice and Bob have been at location A.
 
-If a new reporter adds her location history and had been in close proximity with Bob, Bob is shown a notification the next time he logs in. If Bob has opted in for notifications, Bob receives an email notification. The notification states that Bob has been in close proximity with a Covid19 positive reporter and is asked to login to the application. Note: Bob should only receive a notification if reporter has been at the same location either before or approximately at the same time. 
+If a new reporter adds her location history and had been in close proximity with Bob, Bob is shown a notification the next time he logs in. If Bob has opted in for notifications, Bob receives an email notification. The notification states that Bob has been in close proximity with a Covid19 positive reporter and is asked to login to the application. 
+Note: Bob should only receive a notification if reporter has been at the same location either before or approximately at the same time. We are currently planning to tackle this using locations where users spent time at from Google Maps export.
 
 ### Global reporting (heatmap view)
 Bob, who wants to be cautious and identify high risk areas, can navigate the map to see high risk areas based on the number of people who’ve tested positive being present at different times.
