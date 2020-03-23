@@ -14,8 +14,8 @@ A user adds locations she’s been to for the past 2 weeks indicating date and t
 
 ![image](add-data.png)
 ![image](find-data-1.png)
-![image](docs/ux/find-data-2.png)
-![image](docs/ux/find-data-3.png)
+![image](find-data-2.png)
+![image](find-data-3.png)
 
 
 
