@@ -12,6 +12,10 @@ A user adds locations she’s been to for the past 2 weeks indicating date and t
 10. Find month / two months that cover the location history under Semantic Location History
 11. Drag and drop this file(s) to the GUI
 
+![image](docs/ux/add-data.png)
+![image](docs/ux/find-data-1.png)
+![image](docs/ux/find-data-2.png)
+![image](docs/ux/find-data-3.png)
 
 
 
