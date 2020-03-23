@@ -23,3 +23,6 @@ bazel-genfiles
 bazel-out
 bazel-rust-sgx-sdk
 bazel-testlogs
+
+#Node/NPM
+node_modules/

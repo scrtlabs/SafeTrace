@@ -1,0 +1,31 @@
+{
+  "name": "covid-self-reporting-api",
+  "version": "0.0.1",
+  "description": "JSON-RPC API Server for Covid Self-Reporting Application",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enigmampc/covid-self-reporting.git"
+  },
+  "author": "Victor Grau Serrat <victor@enigma.co>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/enigmampc/covid-self-reporting/issues"
+  },
+  "homepage": "https://github.com/enigmampc/covid-self-reporting/api-server/#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "connect": "^3.7.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "jayson": "^3.2.0",
+    "pm2": "^4.2.3",
+    "zeromq": "^5.1.0"
+  }
+}
