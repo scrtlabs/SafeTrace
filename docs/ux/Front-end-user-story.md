@@ -24,12 +24,14 @@ After Bob adds his location history, he’d be shown whether he’s been in clos
 - Time: Time difference between when Alice and Bob have been at location A.
 
 If a new reporter adds her location history and had been in close proximity with Bob, Bob is shown a notification the next time he logs in. If Bob has opted in for notifications, Bob receives an email notification. The notification states that Bob has been in close proximity with a Covid19 positive reporter and is asked to login to the application. 
-Note: Bob should only receive a notification if reporter has been at the same location either before or approximately at the same time. We are currently planning to tackle this using locations where users spent time at from Google Maps export.
+
+_Note: Bob should only receive a notification if reporter has been at the same location either before or approximately at the same time. We are currently planning to tackle this using locations where users spent time at from Google Maps export_
 
 ### Global reporting (heatmap view)
 Bob, who wants to be cautious and identify high risk areas, can navigate the map to see high risk areas based on the number of people who’ve tested positive being present at different times.
 Heatmap is created based on the location history of individuals who have tested positive for Covid-19. We propose to create a heatmap using Google Maps API. Heatmap API can take 3 inputs  <<latitude, longitude, weight>>. Weights are assigned to location history based on time (more recent visits getting higher weights)
-Note: It's important to show how self-reporting database compares to official statistics as the self-reporting sample size will only cover a small portion of actual cases in the beginning
+
+_Note: It's important to show how self-reporting database compares to official statistics as the self-reporting sample size will only cover a small portion of actual cases in the beginning_
 
 
 
