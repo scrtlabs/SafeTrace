@@ -58,16 +58,15 @@ The system is made up from the following components:
 
 - contains the self-reporting UI
 - displays the individual proximity match report from post-compute results
+- displays a heat map view of positively tested participants (global results) from post-compute results
 
 **Login / Unique identifier DB**
 
 **Private Compute Service**
 
 - contains code
-- maintains a DB of submissions
+- maintains an encrpyted DB of submissions
 
-
-Other elements such as global results are planned but not currently in scope. 
 
 ## Components
 
@@ -81,6 +80,7 @@ Other elements such as global results are planned but not currently in scope.
     - 1-2 months of location history in Google Takeout JSON format
     - Current infection status (positive, negative, untested)
     - Date test was administered
+- Runs data formatting and simple data validation on the browser
 **Open Questions**
 What are our options for data validation?
 
@@ -95,7 +95,8 @@ Input:
 Encrypted user location histories in Google Takeout JSON format
 
 Output:
-Positive matches between users who have had positive test results and users who overlapped with them on time and proximity 
+- Positive matches between users who have had positive test results and users who overlapped with them on time and proximity for individual reporting
+- Clustering algorithm to run on location history of users who have had positive test results (with time dependend weights) for global view
 
 Open Questions
 
