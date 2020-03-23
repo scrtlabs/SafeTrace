@@ -14,11 +14,11 @@ secure, since very often the enclave’s contents may have to be accessed remote
 same platform [[1]](https://courses.cs.ut.ee/MTAT.07.022/2017_spring/uploads/Main/hiie-report-s16-17.pdf)
 
 The attestation process consists of seven stages, encompassing several actors, namely the
-service provider (referred to as a challenger) on one platform; and the application, the application’s enclave, the Intel-provided Quoting Enclave (QE) and Provisioning Enclave (PvE) on another platform. A separate entity in the attestation process is Intel Attestation Service (IAS), which carries out the verification of the enclave [[1]](https://courses.cs.ut.ee/MTAT.07.022/2017_spring/uploads/Main/hiie-report-s16-17.pdf) [[2]](https://software.intel.com/en-us/articles/innovative-technology-for-cpu-based-attestation-and-sealing) [[3]] (https://software.intel.com/sites/default/files/managed/ac/40/2016%20WW10%20sgx%20provisioning%20and%20attesatation%20final.pdf).
+service provider (referred to as a challenger) on one platform; and the application, the application’s enclave, the Intel-provided Quoting Enclave (QE) and Provisioning Enclave (PvE) on another platform. A separate entity in the attestation process is Intel Attestation Service (IAS), which carries out the verification of the enclave [[1]](https://courses.cs.ut.ee/MTAT.07.022/2017_spring/uploads/Main/hiie-report-s16-17.pdf) [[2]](https://software.intel.com/en-us/articles/innovative-technology-for-cpu-based-attestation-and-sealing)[[3]] (https://software.intel.com/sites/default/files/managed/ac/40/2016%20WW10%20sgx%20provisioning%20and%20attesatation%20final.pdf).
 
 In short, the seven stages of remote attestation comprise of making a remote attestation request
 (stage 1), performing a local attestation (stages 2-3), converting the local attestation to a remote
 attestation (stages 4-5), returning the remote attestation to the challenger (stage 6) and verifying
-the remote attestation (stage 7) [[1]](https://courses.cs.ut.ee/MTAT.07.022/2017_spring/uploads/Main/hiie-report-s16-17.pdf) [[3]](https://software.intel.com/sites/default/files/managed/ac/40/2016%20WW10%20sgx%20provisioning%20and%20attesatation%20final.pdf).
+the remote attestation (stage 7) [[1]](https://courses.cs.ut.ee/MTAT.07.022/2017_spring/uploads/Main/hiie-report-s16-17.pdf)  [[3]](https://software.intel.com/sites/default/files/managed/ac/40/2016%20WW10%20sgx%20provisioning%20and%20attesatation%20final.pdf).
 
 Intel Remote Attestation also includes the establishment of a secure communication session between the service provider and the application. This is analogous to how the familiar SSL handshake includes both authentication and session establishment. 
