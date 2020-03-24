@@ -1,10 +1,10 @@
-# JSON-RPC API Server for COVID-19 Self-Reporting Application
+# JSON-RPC API Server for COVID-19 Self-Reporting
 
 This folder contains the code that provides a public-facing API that frontend applications can consume to interact with the SGX enclave.
 
-## API endpoints
+# API endpoints
 
-### getEnclaveReport
+## getEnclaveReport
 
 Requests the Remote Attestation report from the enclave that proves that the enclave is legitimate, runs in production mode, and runs the code that is supposed to run.
 
@@ -18,7 +18,7 @@ None
 `signingKey` (String) - The public signing key of the enclave
 `signature` (String) - Signature of the report
 
-### newTaskEncryptionKey
+## newTaskEncryptionKey
 
 Requests a public encryption from the enclave that will be used to encrypt/decrypt data for the next user request.
 
@@ -31,7 +31,7 @@ Requests a public encryption from the enclave that will be used to encrypt/decry
 `enclavePubKey` (String) - 64-byte public key for Diffie-Hellman
 `signature` (String) - Signature of `enclavePubKey`
 
-### addPersonalData
+## addPersonalData
 
 Submits new personal data from the user (identified by its `userId`) providing an array of `lat`, `lng` and `timestamps`.
 
@@ -45,7 +45,7 @@ Submits new personal data from the user (identified by its `userId`) providing a
 
 `result` (Boolean) - `true` if the operation was successful, `false` otherwise
 
-### findMatch
+## findMatch
 
 Queries whether there is a match both in location and time between the user (identified by its `userId`) and anyone in the dataset who has tested `positive`
 
@@ -59,7 +59,7 @@ Queries whether there is a match both in location and time between the user (ide
 `matches` (Array) - if a match was found, this field will be populated with an array of `lat`, `lng` and `timestamp` where a match was found.
 
 
-## Data Specification
+# Data Specification
 
 The geolocation + datetime data is to be provided in an array in JSON format as follows:
 
@@ -81,11 +81,13 @@ The geolocation + datetime data is to be provided in an array in JSON format as 
 ]
 ```
 
+# Installation
+
 ## Requirements
 
 The code in this folder assumes that it will be run on the same server that runs the code in the [enclave](../enclave) folder, which requires SGX (see that folder for additional information). Otherwise adjust the `ENCLAVE_URI` in [index.js](index.js) accordingly.
 
-## Installation
+## Setup
 
 1. Clone this repository, if you haven't already:
 
