@@ -1,8 +1,4 @@
 ### Adding data
-
-[![Adding data](https://img.youtube.com/vi/12ghA-KlbxY/maxresdefault.jpg)](https://youtu.be/12ghA-KlbxY)
-
-
 A user adds locations she’s been to for the past 2 weeks indicating date and time and also chooses whether she has i) tested positive, ii) has shown symptoms or iii) has not been tested. This step enables creating a location history / heatmap among users and triggers notifications when a user has been in close proximity with people who have the virus. Alice takes the following steps:
 1. Alice creates an account (username and password) and clicks on I want to self-report and is directed to the next screen. This creates the first entries in the encrypted database <<unique_id, status>> 
 2. Alice is shown instructions on how to export her data from Google Maps.
@@ -21,6 +17,7 @@ A user adds locations she’s been to for the past 2 weeks indicating date and t
 ![image](find-data-2.png)
 ![image](find-data-3.png)
 
+[![Adding data](https://img.youtube.com/vi/12ghA-KlbxY/hqdefault.jpg)](https://youtu.be/12ghA-KlbxY)
 
 
 ### Individual reporting
