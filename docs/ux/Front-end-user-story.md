@@ -1,6 +1,6 @@
 ### Adding data
 
-[![Adding data]({https://img.youtube.com/vi/12ghA-KlbxY/maxresdefault.jpg})]({https://youtu.be/12ghA-KlbxY} "Adding Data UX")
+[![Adding data](https://img.youtube.com/vi/12ghA-KlbxY/maxresdefault.jpg)](https://youtu.be/12ghA-KlbxY)
 
 
 A user adds locations she’s been to for the past 2 weeks indicating date and time and also chooses whether she has i) tested positive, ii) has shown symptoms or iii) has not been tested. This step enables creating a location history / heatmap among users and triggers notifications when a user has been in close proximity with people who have the virus. Alice takes the following steps:
