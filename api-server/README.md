@@ -24,12 +24,12 @@ Requests a public encryption from the enclave that will be used to encrypt/decry
 
 **Parameters**
 
-`userPubKey` (String) - 64-byte public key for Diffie-Hellman
+* `userPubKey` (String) - 64-byte public key for Diffie-Hellman
 
 **Returns**
 
-`enclavePubKey` (String) - 64-byte public key for Diffie-Hellman
-`signature` (String) - Signature of `enclavePubKey`
+* `enclavePubKey` (String) - 64-byte public key for Diffie-Hellman
+* `signature` (String) - Signature of `enclavePubKey`
 
 ## addPersonalData
 
@@ -37,13 +37,13 @@ Submits new personal data from the user (identified by its `userId`) providing a
 
 **Parameters**
 
-`encryptedUserId` (String) - encrypted `userId`
-`encryptedData` (String) - encrypted data, see the [Data Specification section](#data-specification) for details.
-`userPubKey` - (String) - 64-byte public key for Diffie-Hellman
+* `encryptedUserId` (String) - encrypted `userId`
+* `encryptedData` (String) - encrypted data, see the [Data Specification section](#data-specification) for details.
+* `userPubKey` - (String) - 64-byte public key for Diffie-Hellman
 
 **Returns**
 
-`result` (Boolean) - `true` if the operation was successful, `false` otherwise
+* `result` (Boolean) - `true` if the operation was successful, `false` otherwise
 
 ## findMatch
 
@@ -51,12 +51,12 @@ Queries whether there is a match both in location and time between the user (ide
 
 **Parameters**
 
-`encryptedUserId` (String) - encrypted `userId`
+* `encryptedUserId` (String) - encrypted `userId`
 
 **Returns**
 
-`result` (Boolean) - `true` if at least one match was found, `false` otherwise
-`matches` (Array) - if a match was found, this field will be populated with an array of `lat`, `lng` and `timestamp` where a match was found.
+* `result` (Boolean) - `true` if at least one match was found, `false` otherwise
+* `matches` (Array) - if a match was found, this field will be populated with an array of `lat`, `lng` and `timestamp` where a match was found.
 
 
 # Data Specification
