@@ -12,11 +12,7 @@ A user adds locations she’s been to for the past 2 weeks indicating date and t
 10. Find month / two months that cover the location history under Semantic Location History
 11. Drag and drop this file(s) to the GUI
 
-![image](add-data.png)
-![image](find-data-1.png)
-![image](find-data-2.png)
-![image](find-data-3.png)
-
+See `docs/ux/SafeTrace_Wireframes.pdf` for current wireframes
 [![Adding data](https://img.youtube.com/vi/12ghA-KlbxY/hqdefault.jpg)](https://youtu.be/12ghA-KlbxY)
 
 
