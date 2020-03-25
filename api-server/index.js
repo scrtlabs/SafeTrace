@@ -76,7 +76,7 @@ const server = jayson.server({
       try {
         await socket.send(JSON.stringify({
           id : id, 
-          type : 'addPersonalData', 
+          type : 'AddPersonalData', 
           input: {
             encryptedUserId: args.encryptedUserId,
             encryptedData: args.encryptedData,
@@ -103,7 +103,7 @@ const server = jayson.server({
       try {
         await socket.send(JSON.stringify({
           id : id, 
-          type : 'findMatch', 
+          type : 'FindMatch', 
           input: {
             encryptedUserId: args.encryptedUserId,
             userPubKey: args.userPubKey
