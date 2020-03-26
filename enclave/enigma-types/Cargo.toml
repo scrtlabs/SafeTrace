@@ -1,0 +1,24 @@
+# I use package renaming to import 2 libraries with the same name but from different sources (1 for SGX and 1 for regular std)
+# Then in the code you can rename them back (under a cfg condition) to the same name to use abstractly.
+
+[package]
+name = "enigma-types"
+version = "0.3.0"
+authors = ["Elichai Turkel <elichai@enigma.co>"]
+edition = "2018"
+categories = ["no-std"]
+
+[dependencies]
+rustc-hex = { version = "2.0.1", default-features = false }
+arrayvec = { version = "0.4.10", default-features = false }
+serde_sgx = { package = "serde", git = "https://github.com/mesalock-linux/serde-sgx.git", rev = "sgx_1.0.9", optional = true }
+serde_std = { package = "serde", version = "1.0", default-features = false, optional = true }
+
+[build-dependencies]
+cbindgen = "0.8"
+
+[features]
+default = ["serde_std/derive"] # This library is no_std with the default features.
+std = ["serde_std/std", "serde_std/derive"]
+alloc = ["serde_std/alloc", "serde_std/derive"]
+sgx = ["serde_sgx", "serde_sgx/derive"]
