@@ -26,8 +26,6 @@ enclave {
     trusted {
         /* define ECALLs here. */
 
-        public sgx_status_t say_something([in, size=len] const uint8_t* some_string, size_t len);
-
         public sgx_status_t ecall_add_personal_data([in, size=len] const uint8_t* some_string, size_t len);
 
         public sgx_status_t ecall_get_user_key(
@@ -35,5 +33,8 @@ enclave {
             [in] uint8_t pubkey[64],
             [out] uint64_t* serialized_ptr
         );
+    };
+    untrusted {
+        uint64_t ocall_save_to_memory([in, count=data_len] const uint8_t* data_ptr, size_t data_len);
     };
 };

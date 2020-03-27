@@ -1,8 +1,7 @@
 use crate::common_u::errors::EnclaveFailError;
-use enigma_types::{EnclaveReturn, PubKey};
 use failure::Error;
 use sgx_types::{sgx_enclave_id_t, sgx_status_t};
-//use enigma_types::{EnclaveReturn, PubKey, RawPointer};
+use crate::enigma_types::types::{EnclaveReturn};
 
 extern {
     pub fn ecall_get_user_key(
@@ -15,7 +14,7 @@ extern {
 }
 
 
-pub fn get_user_key(eid: sgx_enclave_id_t, user_pubkey: &PubKey) -> Result<(Box<[u8]>, [u8; 65]), Error> {
+pub fn get_user_key(eid: sgx_enclave_id_t, user_pubkey: &[u8; 64]) -> Result<(Box<[u8]>, [u8; 65]), Error> {
     let mut sig = [0u8; 65];
     let mut ret = EnclaveReturn::Success;
     let mut serialized_ptr = 0u64;

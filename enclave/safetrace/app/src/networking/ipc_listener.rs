@@ -28,7 +28,6 @@ impl IpcListener {
     }
 }
 
-//pub fn handle_message(request: Multipart, spid: &str, eid: sgx_enclave_id_t, retries: u32) -> Multipart {
 pub fn handle_message(request: Multipart, spid: &str, eid: sgx_enclave_id_t, retries: u32) -> Multipart {
     let mut responses = Multipart::new();
     for msg in request {
@@ -46,6 +45,7 @@ pub fn handle_message(request: Multipart, spid: &str, eid: sgx_enclave_id_t, ret
     responses
 }
 
+
 pub(self) mod handling {
     use crate::networking::messages::*;
     use crate::keys_u;
@@ -53,7 +53,6 @@ pub(self) mod handling {
     use sgx_types::{sgx_enclave_id_t, sgx_status_t};
     use hex::{FromHex, ToHex};
     use std::str;
-    use rmp_serde::Deserializer;
     use serde::Deserialize;
     use serde_json::Value;
 
@@ -63,6 +62,11 @@ pub(self) mod handling {
     }
 
     type ResponseResult = Result<IpcResponse, Error>;
+
+    #[derive(Serialize, Deserialize)]
+    struct PubkeyResult {
+        pubkey: Vec<u8>
+    }
 
     pub fn get_enclave_report(eid: sgx_enclave_id_t, spid: &str, retries: u32) -> ResponseResult {
         let result = IpcResults::EnclaveReport { spid: spid.to_string() };
@@ -77,19 +81,26 @@ pub(self) mod handling {
 
         let (msg, sig) = keys_u::get_user_key(eid, &user_pubkey)?;
 
-        let mut des = Deserializer::new(&msg[..]);
-        let res: Value = Deserialize::deserialize(&mut des).unwrap();
-        let pubkey = serde_json::from_value::<Vec<u8>>(res["pubkey"].clone())?;
+        // Enigma-core implementation used MessagePack, but rmp-serde is not available
+        // so replaced MessagePack serialization with plain JSON serialization
+        //let mut des = Deserializer::new(&msg[..]);
+        //let res: Value = Deserialize::deserialize(&mut des).unwrap();
+        //let pubkey = serde_json::from_value::<Vec<u8>>(res["pubkey"].clone())?;
+        //let pubkey = serde_json::from_slice::<Vec<u8>>(&msg)?;
+        let res = match str::from_utf8(&msg) {
+            Ok(v) => v,
+            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+        };
 
-        let result = IpcResults::DHKey {dh_key: pubkey.to_hex(), sig: sig.to_hex() };
-        //let result = IpcResults::DHKey {dh_key: _user_pubkey.to_string(), sig: _user_pubkey.to_string()};
+        let pubkey: PubkeyResult = serde_json::from_str(res)?;
+
+        let result = IpcResults::DHKey {taskPubKey: pubkey.pubkey.to_hex(), sig: sig.to_hex() };
 
         Ok(IpcResponse::NewTaskEncryptionKey { result })
     }
 
     // TODO
     //#[logfn(DEBUG)]
-    // pub fn compute_task(db: &mut DB, input: IpcTask, eid: sgx_enclave_id_t) -> ResponseResult {
     pub fn add_personal_data( input: IpcInput, eid: sgx_enclave_id_t) -> ResponseResult {
         let mut ret = sgx_status_t::SGX_SUCCESS;
         let data = serde_json::to_string(&input).unwrap();
@@ -102,7 +113,6 @@ pub(self) mod handling {
 
     // TODO
     //#[logfn(DEBUG)]
-    // pub fn compute_task(db: &mut DB, input: IpcTask, eid: sgx_enclave_id_t) -> ResponseResult {
     pub fn find_match( input: IpcInput, eid: sgx_enclave_id_t) -> ResponseResult {
         let result = IpcResults::FindMatch { status: Status::Passed };
         Ok(IpcResponse::FindMatch { result })

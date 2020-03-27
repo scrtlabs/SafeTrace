@@ -2,8 +2,7 @@ use sgx_types::*;
 use serde::{Serialize, Deserialize};
 use std::{slice};
 use std::string::String;
-use std::vec::Vec;
-use std::fmt;
+//use std::vec::Vec;
 
 // Structs
 #[derive(Serialize, Deserialize, Clone, Debug)]

@@ -38,11 +38,11 @@ pub mod enigma_types;
 pub mod common_u;
 pub mod keys_u;
 pub mod networking;
+pub mod ocalls_u;
 
 use networking::{ipc_listener, IpcListener};
 use futures::Future;
-
-
+pub use ocalls_u::{ocall_save_to_memory};
 
 static ENCLAVE_FILE: &'static str = "enclave.signed.so";
 
