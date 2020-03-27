@@ -28,6 +28,8 @@ enclave {
 
         public sgx_status_t say_something([in, size=len] const uint8_t* some_string, size_t len);
 
+        public sgx_status_t ecall_add_personal_data([in, size=len] const uint8_t* some_string, size_t len);
+
         public sgx_status_t ecall_get_user_key(
             [out] uint8_t sig[65],
             [in] uint8_t pubkey[64],

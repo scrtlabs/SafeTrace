@@ -1,9 +1,10 @@
 use crate::networking::messages::*;
-use sgx_types::sgx_enclave_id_t;
+use sgx_types::{sgx_enclave_id_t, sgx_status_t};
 use futures::{Future, Stream};
 use std::sync::Arc;
 use tokio_zmq::prelude::*;
 use tokio_zmq::{Error, Multipart, Rep};
+
 
 pub struct IpcListener {
     _context: Arc<zmq::Context>,
@@ -49,13 +50,17 @@ pub(self) mod handling {
     use crate::networking::messages::*;
     use crate::keys_u;
     use failure::Error;
-    use sgx_types::sgx_enclave_id_t;
+    use sgx_types::{sgx_enclave_id_t, sgx_status_t};
     use hex::{FromHex, ToHex};
     use std::str;
     use rmp_serde::Deserializer;
     use serde::Deserialize;
     use serde_json::Value;
 
+    extern {
+    fn ecall_add_personal_data(eid: sgx_enclave_id_t, ret: *mut sgx_status_t,
+                     some_string: *const u8, len: usize) -> sgx_status_t;
+    }
 
     type ResponseResult = Result<IpcResponse, Error>;
 
@@ -86,6 +91,11 @@ pub(self) mod handling {
     //#[logfn(DEBUG)]
     // pub fn compute_task(db: &mut DB, input: IpcTask, eid: sgx_enclave_id_t) -> ResponseResult {
     pub fn add_personal_data( input: IpcInput, eid: sgx_enclave_id_t) -> ResponseResult {
+        let mut ret = sgx_status_t::SGX_SUCCESS;
+        let data = serde_json::to_string(&input).unwrap();
+
+        unsafe { ecall_add_personal_data(eid, &mut ret as *mut sgx_status_t, data.as_ptr() as * const u8, data.len()) };
+
         let result = IpcResults::AddPersonalData { status: Status::Passed };
         Ok(IpcResponse::AddPersonalData { result })
     }

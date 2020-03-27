@@ -30,8 +30,17 @@ use sgx_types::*;
 use std::string::String;
 use std::vec::Vec;
 use std::io::{self, Write};
-use std::slice;
+use std::{slice};
 
+extern crate serde;
+extern crate serde_json;
+
+
+mod data;
+mod keys_t;
+
+use keys_t::ecall_get_user_key_internal;
+use data::ecall_add_personal_data_internal;
 
 #[no_mangle]
 pub extern "C" fn say_something(some_string: *const u8, some_len: usize) -> sgx_status_t {
@@ -66,16 +75,22 @@ pub extern "C" fn say_something(some_string: *const u8, some_len: usize) -> sgx_
 
 
 #[no_mangle]
-pub extern "C" fn ecall_get_user_key(sig: &mut [u8; 65], user_pubkey: &[u8; 64], serialized_ptr: *mut u64) -> sgx_status_t {
+pub unsafe extern "C" fn ecall_get_user_key(sig: &mut [u8; 65], user_pubkey: &[u8; 64], serialized_ptr: *mut u64) -> sgx_status_t {
     println!("Get User Key called inside envlave");
-    // let msg = match ecall_get_user_key_internal(sig, user_pubkey) {
-    //     Ok(msg) => msg,
-    //     Err(e) => return e.into(),
-    // };
+    let msg = match ecall_get_user_key_internal(sig, user_pubkey) {
+        Ok(msg) => msg,
+        Err(e) => return e,
+    };
     // *serialized_ptr = match ocalls_t::save_to_untrusted_memory(&msg[..]) {
     //     Ok(ptr) => ptr,
     //     Err(e) => return e.into(),
     // };
     // EnclaveReturn::Success
+    sgx_status_t::SGX_SUCCESS
+}
+
+#[no_mangle]
+pub extern "C" fn ecall_add_personal_data(data_string: *const u8, data_len: usize) -> sgx_status_t {
+    ecall_add_personal_data_internal(data_string, data_len);
     sgx_status_t::SGX_SUCCESS
 }
