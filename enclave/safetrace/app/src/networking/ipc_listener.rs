@@ -59,8 +59,6 @@ pub(self) mod handling {
 
     type ResponseResult = Result<IpcResponse, Error>;
 
-    // TODO
-    //pub fn get_enclave_report(eid: sgx_enclave_id_t, spid: &str, retries: u32) -> ResponseResult {
     pub fn get_enclave_report(eid: sgx_enclave_id_t, spid: &str, retries: u32) -> ResponseResult {
         let result = IpcResults::EnclaveReport { spid: spid.to_string() };
         Ok(IpcResponse::GetEnclaveReport { result })
@@ -68,7 +66,6 @@ pub(self) mod handling {
 
     // TODO
     //#[logfn(TRACE)]
-    //pub fn new_task_encryption_key(_user_pubkey: &str, eid: sgx_enclave_id_t) -> ResponseResult {
     pub fn new_task_encryption_key(_user_pubkey: &str, eid: sgx_enclave_id_t) -> ResponseResult {
         let mut user_pubkey = [0u8; 64];
         user_pubkey.clone_from_slice(&_user_pubkey.from_hex().unwrap());

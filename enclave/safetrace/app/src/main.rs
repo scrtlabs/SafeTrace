@@ -15,15 +15,29 @@
 // specific language governing permissions and limitations
 // under the License..
 
-extern crate safetrace_app;
 
 extern crate sgx_types;
 extern crate sgx_urts;
 
+pub extern crate futures;
+extern crate tokio_zmq;
+extern crate zmq;
+#[macro_use]
+extern crate failure;
+#[macro_use]
+extern crate serde;
+extern crate serde_repr;
+pub extern crate serde_json;
+extern crate rmp_serde;
+extern crate rustc_hex as hex;
 
-pub use safetrace_app::*;
 use sgx_types::*;
 use sgx_urts::SgxEnclave;
+
+pub mod enigma_types;
+pub mod common_u;
+pub mod keys_u;
+pub mod networking;
 
 use networking::{ipc_listener, IpcListener};
 use futures::Future;

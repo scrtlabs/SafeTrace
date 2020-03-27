@@ -27,7 +27,6 @@ ifeq ($(XARGO_SGX), 1)
 	RUST_TARGET_PATH=$(Rust_Target_Path) xargo build --target x86_64-unknown-linux-sgx --release
 	cp ./target/x86_64-unknown-linux-sgx/release/libsafetraceenclave.a ../lib/libenclave.a
 else
-	cargo build -p enigma-types $(CARGO_FLAGS) # Meant to make sure `enigma-types.h` already exists and can be included.
 	cargo build --release
 	cp ./target/release/libsafetraceenclave.a ../lib/libenclave.a
 endif
