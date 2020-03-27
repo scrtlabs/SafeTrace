@@ -5,7 +5,8 @@
 - participate in the [COVID-19 Global Hackathon](https://devpost.com/software/safetrace) March 26-30 ([discussion](https://join.slack.com/share/I010ZH2QHJB/pUfz8AQI3O41pugLTTB5BMNL/enQtMTAzMzU4MDgzMzYyMy0wYzY0YzRkYTdhYmNmZDNjMThmMjZlOTg5M2U5NDZlYWM0ODVjNTRhYTczM2VmZTA5NTIwNzRhMWNmZTQwZGU4))
 - get ready for DAIA's [COVIDathon](https://daia.foundation/covidathon) which starts April 1 ([discussion](https://discord.gg/NsX9Gzb))
 - we ask that changes to `master` be made via pull request
-*** We are currently working on an MVP, and progress towards this can be tracked here: https://github.com/enigmampc/SafeTrace/projects/1 If you can help with any of the to-do or in-progress issues, please leave a comment there!***
+
+***We are currently working on an MVP, and progress towards this can be tracked here: https://github.com/enigmampc/SafeTrace/projects/1 If you can help with any of the to-do or in-progress issues, please leave a comment there!***
 
 
 ## Contributing to SafeTrace Compute
