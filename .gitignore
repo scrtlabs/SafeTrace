@@ -11,6 +11,17 @@ Cargo.lock
 *.so
 *.so.*
 
+#generated proxy
+hello-rust/bin/app
+hello-rust/**/*_u.c
+hello-rust/**/*_u.h
+hello-rust/**/*_t.c
+hello-rust/**/*_t.h
+safetrace/**/*_u.c
+safetrace/**/*_u.h
+safetrace/**/*_t.c
+safetrace/**/*_t.h
+
 **/target
 *.wasm
 
@@ -42,9 +53,6 @@ Enclave_t.c
 Enclave_t.h
 bin/
 lib/
-
-# enigma-types
-enigma-types.h
 
 # Prerequisites
 *.d

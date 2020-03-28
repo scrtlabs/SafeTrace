@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+use crate::enigma_types::types::*;
 use sgx_types::*;
 use std::fmt;
 use failure::Error;
@@ -81,6 +82,6 @@ impl fmt::Display for DBErrKind {
 #[derive(Fail, Debug)]
 #[fail(display = "Error inside the Enclave = ({:?})", err)]
 pub struct EnclaveFailError {
-    pub err: enigma_types::EnclaveReturn,
+    pub err: EnclaveReturn,
     pub status: sgx_status_t,
 }

@@ -135,7 +135,6 @@ $(Enclave_EDL_Files): $(SGX_EDGER8R) enclave/Enclave.edl
 
 # Untrusted EDL object
 app/Enclave_u.o: $(Enclave_EDL_Files)
-	@cd app && cargo build -p enigma-types $(App_Rust_Flags)
 	@$(CC) $(App_C_Flags) -c app/Enclave_u.c -o $@
 	@echo "CC   <=  $<"
 

@@ -22,129 +22,119 @@
 #![cfg_attr(target_env = "sgx", feature(rustc_private))]
 
 extern crate sgx_types;
-extern crate sgx_trts;
 #[cfg(not(target_env = "sgx"))]
 #[macro_use]
 extern crate sgx_tstd as std;
+extern crate sgx_rand;
+extern crate sgx_trts;
+extern crate sgx_tseal;
+#[macro_use]
+extern crate lazy_static;
+
+// extern crate sgx_serialize;
+// #[macro_use]
+// extern crate sgx_serialize_derive;
 
 use sgx_types::*;
-use sgx_types::metadata::*;
-use sgx_trts::enclave;
-//use sgx_trts::{is_x86_feature_detected, is_cpu_feature_supported};
-use std::string::String;
-use std::vec::Vec;
-use std::io::{self, Write};
-use std::slice;
-use std::backtrace::{self, PrintFormat};
+use std::{slice};
 
-extern crate enigma_types;
+extern crate serde;
+extern crate serde_json;
+extern crate secp256k1;
+extern crate tiny_keccak;
+extern crate sha2;
+extern crate rustc_hex;
+extern crate arrayvec;
+//extern crate ring;
 
-// use enigma_types::{
-//     traits::SliceCPtr, ContractAddress, DhKey, EnclaveReturn, ExecuteResult, Hash256, PubKey, RawPointer, ResultStatus,
-// };
-use enigma_types::{EnclaveReturn};
+#[macro_use]
+mod macros;
+mod errors_t;
+mod data;
+mod keys_t;
+mod storage;
+mod types;
+mod hash;
+mod traits;
+
+use keys_t::{ecall_get_user_key_internal, KeyPair, DH_KEYS, LockExpectMutex};
+use data::ecall_add_personal_data_internal;
+use storage::*;
+use types::{PubKey, DhKey, EnclaveReturn};
+use errors_t::{EnclaveError, CryptoError};
+use traits::SliceCPtr;
+
+lazy_static! {
+    pub(crate) static ref SIGNING_KEY: KeyPair = get_sealed_keys_wrapper();
+}
+
+extern "C" {
+    fn ocall_save_to_memory(ptr: *mut u64, data_ptr: *const u8, data_len: usize) -> sgx_status_t;
+}
+
+
+// TODO: Replace u64 with *const u8, and pass it via the ocall using *const *const u8
+pub fn save_to_untrusted_memory(data: &[u8]) -> Result<u64, EnclaveError> {
+    let mut ptr = 0u64;
+    match unsafe { ocall_save_to_memory(&mut ptr as *mut u64, data.as_c_ptr(), data.len()) } {
+        sgx_status_t::SGX_SUCCESS => Ok(ptr),
+        e => Err(e.into()),
+    }
+}
+
+fn get_sealed_keys_wrapper() -> KeyPair {
+    // // Get Home path via Ocall
+    // let mut path_buf = get_home_path().unwrap();
+    // // add the filename to the path: `keypair.sealed`
+    // path_buf.push("keypair.sealed");
+    // let sealed_path = path_buf.to_str().unwrap();
+
+    // TODO: Decide what to do if failed to obtain keys.
+    match get_sealed_keys("keypair.sealed") {
+        Ok(key) => key,
+        Err(err) => panic!("Failed obtaining keys: {:?}", err),
+    }
+}
 
 #[no_mangle]
-pub extern "C" fn say_something(some_string: *const u8, some_len: usize) -> sgx_status_t {
-
-    let str_slice = unsafe { slice::from_raw_parts(some_string, some_len) };
-    let _ = io::stdout().write(str_slice);
-
-    // A sample &'static string
-    let rust_raw_string = "This is a in-Enclave ";
-    // An array
-    let word:[u8;4] = [82, 117, 115, 116];
-    // An vector
-    let word_vec:Vec<u8> = vec![32, 115, 116, 114, 105, 110, 103, 33];
-
-    // Construct a string from &'static string
-    let mut hello_string = String::from(rust_raw_string);
-
-    // Iterate on word array
-    for c in word.iter() {
-        hello_string.push(*c as char);
-    }
-
-    // Rust style convertion
-    hello_string += String::from_utf8(word_vec).expect("Invalid UTF-8")
-                                               .as_str();
-
-    // Ocall to normal world for output
-    println!("{}", &hello_string);
-
-    let _ = backtrace::enable_backtrace("enclave.signed.so", PrintFormat::Full);
-
-    let gd = enclave::SgxGlobalData::new();
-    println!("gd: {} {} {} {} ", gd.get_static_tcs_num(), gd.get_eremove_tcs_num(), gd.get_dyn_tcs_num(), gd.get_tcs_max_num());
-    let (static_num, eremove_num, dyn_num) = get_thread_num();
-    println!("static: {} eremove: {} dyn: {}", static_num, eremove_num, dyn_num);
-
-    unsafe {
-        println!("EDMM: {}, feature: {}", EDMM_supported, g_cpu_feature_indicator);
-    }
-    if is_x86_feature_detected!("sgx") {
-        println!("supported sgx");
-    }
-
-    sgx_status_t::SGX_SUCCESS
-}
-
-#[link(name = "sgx_trts")]
-extern {
-    static g_cpu_feature_indicator: uint64_t;
-    static EDMM_supported: c_int;
-}
-
-
-fn get_thread_num() -> (u32, u32, u32) {
-    let gd = unsafe {
-        let p = enclave::rsgx_get_global_data();
-        &*p
+pub unsafe extern "C" fn ecall_get_user_key(sig: &mut [u8; 65], user_pubkey: &[u8; 64], serialized_ptr: *mut u64) -> EnclaveReturn  {
+    println!("Get User Key called inside enclave");
+    let msg = match ecall_get_user_key_internal(sig, user_pubkey) {
+        Ok(msg) => msg,
+        Err(e) => return e.into(),
     };
+    *serialized_ptr = match save_to_untrusted_memory(&msg[..]) {
+        Ok(ptr) => ptr,
+        Err(e) => return e.into(),
+    };
+    EnclaveReturn::Success
+}
 
-    let mut static_thread_num: u32 = 0;
-    let mut eremove_thread_num: u32 = 0;
-    let mut dyn_thread_num: u32 = 0;
-    let layout_table = &gd.layout_table[0..gd.layout_entry_num as usize];
-    unsafe { traversal_layout(&mut static_thread_num, &mut dyn_thread_num, &mut eremove_thread_num, layout_table); }
-
-    unsafe fn traversal_layout(static_num: &mut u32, dyn_num: &mut u32, eremove_num: &mut u32, layout_table: &[layout_t])
-    {
-        for (i, layout) in layout_table.iter().enumerate() {
-            if !is_group_id!(layout.group.id as u32) {
-                if (layout.entry.attributes & PAGE_ATTR_EADD) != 0 {
-                    if (layout.entry.content_offset != 0) && (layout.entry.si_flags == SI_FLAGS_TCS) {
-                        if (layout.entry.attributes & PAGE_ATTR_EREMOVE) == 0 {
-                            *static_num += 1;
-                        } else {
-                            *eremove_num += 1;
-                        }
-                    }
-                }
-                if (layout.entry.attributes & PAGE_ATTR_POST_ADD) != 0 {
-                    if layout.entry.id == LAYOUT_ID_TCS_DYN as u16 {
-                        *dyn_num += 1;
-                    }
-                }
-            } else {
-                for _ in 0..layout.group.load_times {
-                    traversal_layout(static_num, dyn_num, eremove_num, &layout_table[i - layout.group.entry_count as usize..i])
-                }
-            }
-        }
-    }
-    (static_thread_num, eremove_thread_num, dyn_thread_num)
+fn get_io_key(user_key: &PubKey) -> Result<DhKey, EnclaveError> {
+    let io_key = DH_KEYS
+        .lock_expect("User DH Key")
+        .remove(&user_key[..])
+        .ok_or(CryptoError::MissingKeyError { key_type: "DH Key" })?;
+    Ok(io_key)
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn ecall_get_user_key(sig: &mut [u8; 65], user_pubkey: &PubKey, serialized_ptr: *mut u64) -> EnclaveReturn {
-    // let msg = match ecall_get_user_key_internal(sig, user_pubkey) {
-    //     Ok(msg) => msg,
-    //     Err(e) => return e.into(),
-    // };
-    // *serialized_ptr = match ocalls_t::save_to_untrusted_memory(&msg[..]) {
-    //     Ok(ptr) => ptr,
-    //     Err(e) => return e.into(),
-    // };
+pub unsafe extern "C" fn ecall_add_personal_data(
+    encryptedUserId: *const u8,
+    encryptedUserId_len: usize,
+    encryptedData: *const u8,
+    encryptedData_len: usize,
+    userPubKey: &[u8; 64]) -> EnclaveReturn {
+
+    let encryptedUserId = slice::from_raw_parts(encryptedUserId, encryptedUserId_len);
+    let encryptedData = slice::from_raw_parts(encryptedData, encryptedData_len);
+
+    let io_key;
+    match get_io_key(userPubKey) {
+        Ok(v) => io_key = v,
+        Err(e) => return e.into(),
+    }
+
+    let result = ecall_add_personal_data_internal(encryptedUserId, encryptedData, userPubKey, &io_key);
     EnclaveReturn::Success
 }

@@ -15,20 +15,34 @@
 // specific language governing permissions and limitations
 // under the License..
 
-extern crate safetrace_app;
 
 extern crate sgx_types;
 extern crate sgx_urts;
 
+pub extern crate futures;
+extern crate tokio_zmq;
+extern crate zmq;
+#[macro_use]
+extern crate failure;
+#[macro_use]
+extern crate serde;
+extern crate serde_repr;
+pub extern crate serde_json;
+extern crate rmp_serde;
+extern crate rustc_hex as hex;
 
-pub use safetrace_app::*;
 use sgx_types::*;
 use sgx_urts::SgxEnclave;
 
+pub mod enigma_types;
+pub mod common_u;
+pub mod keys_u;
+pub mod networking;
+pub mod ocalls_u;
+
 use networking::{ipc_listener, IpcListener};
 use futures::Future;
-
-
+pub use ocalls_u::{ocall_save_to_memory};
 
 static ENCLAVE_FILE: &'static str = "enclave.signed.so";
 

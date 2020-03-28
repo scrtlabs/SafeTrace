@@ -9,9 +9,8 @@
 //! Note: Please use the right types even if they're only aliases right now,
 //! this helps both for readability and if in the future we decide to change the alias.
 
-use core::{fmt, mem, ptr, default::Default};
+// use core::{fmt, mem, ptr, default::Default};
 
-pub use crate::hash::Hash256;
 /// The size of the symmetric 256 bit key we use for encryption (in bytes).
 pub const SYMMETRIC_KEY_SIZE: usize = 256 / 8;
 /// symmetric key we use for encryption.
@@ -20,8 +19,7 @@ pub type SymmetricKey = [u8; SYMMETRIC_KEY_SIZE];
 pub type StateKey = SymmetricKey;
 /// DHKey is the key that results from the ECDH [`enigma_crypto::KeyPair::derive_key`](../replace_me)
 pub type DhKey = SymmetricKey;
-/// ContractAddress is the address of contracts in the Enigma Network.
-pub type ContractAddress = Hash256;
+
 /// PubKey is a public key that is used for ECDSA signing.
 pub type PubKey = [u8; 64];
 
@@ -100,71 +98,71 @@ pub struct ExecuteResult {
     pub used_gas: u64,
 }
 
-/// This struct is a wrapper to a raw pointer.
-/// when you pass a pointer through the SGX bridge(EDL) the SGX Edger8r will copy the data that it's pointing to
-/// using `memalloc` and `memset` to the other side of the bridge, then it changes the pointer to point to the new data.
-///
-/// So this struct is needed if you want to pass a pointer from one side to the other while the pointer still points to the right locaiton.
-///
-/// Say you want to give the enclave a DB on the untrusted, so that the enclave can then pass that pointer to an ocall.
-/// This will let you do it without the Edger8r messing with the pointer.
-///
-/// And I tried to add a mutability bool to make it a little more safe by giving you a pointer based on the original mutability.
-#[repr(C)]
-#[derive(Clone, Copy, Debug)]
-pub struct RawPointer {
-    ptr: *const u8,
-    _mut: bool
-}
+// /// This struct is a wrapper to a raw pointer.
+// /// when you pass a pointer through the SGX bridge(EDL) the SGX Edger8r will copy the data that it's pointing to
+// /// using `memalloc` and `memset` to the other side of the bridge, then it changes the pointer to point to the new data.
+// ///
+// /// So this struct is needed if you want to pass a pointer from one side to the other while the pointer still points to the right locaiton.
+// ///
+// /// Say you want to give the enclave a DB on the untrusted, so that the enclave can then pass that pointer to an ocall.
+// /// This will let you do it without the Edger8r messing with the pointer.
+// ///
+// /// And I tried to add a mutability bool to make it a little more safe by giving you a pointer based on the original mutability.
+// #[repr(C)]
+// #[derive(Clone, Copy, Debug)]
+// pub struct RawPointer {
+//     ptr: *const u8,
+//     _mut: bool
+// }
 
-impl RawPointer {
-    /// Creates a new RawPointer wrapper.
-    /// it will auto cast the reference into a raw pointer.
-    pub unsafe fn new<T>(reference: &T) -> Self {
-        RawPointer { ptr: reference as *const T as *const u8, _mut: false }
-    }
+// impl RawPointer {
+//     /// Creates a new RawPointer wrapper.
+//     /// it will auto cast the reference into a raw pointer.
+//     pub unsafe fn new<T>(reference: &T) -> Self {
+//         RawPointer { ptr: reference as *const T as *const u8, _mut: false }
+//     }
 
-    /// Creates a new mutable RawPointer wrapper.
-    /// This is needed if when you unwrap this you want a mutable pointer.
-    pub unsafe fn new_mut<T>(reference: &mut T) -> Self {
-        RawPointer { ptr: reference as *mut T as *const u8, _mut: true }
-    }
+//     /// Creates a new mutable RawPointer wrapper.
+//     /// This is needed if when you unwrap this you want a mutable pointer.
+//     pub unsafe fn new_mut<T>(reference: &mut T) -> Self {
+//         RawPointer { ptr: reference as *mut T as *const u8, _mut: true }
+//     }
 
-    /// This will return the underlying const raw pointer.
-    pub fn get_ptr<T>(&self) -> *const T {
-        self.ptr as *const T
-    }
+//     /// This will return the underlying const raw pointer.
+//     pub fn get_ptr<T>(&self) -> *const T {
+//         self.ptr as *const T
+//     }
 
-    /// this will return a Result and if the RawPointer was created with `new_mut`
-    /// it Will return `Ok` with the underlying mut raw pointer.
-    /// if the struct was created with just `new` it will return `Err`.
-    pub fn get_mut_ptr<T>(&self) -> Result<*mut T, &'static str> {
-        if !self._mut {
-            Err("This DoublePointer is not mutable")
-        } else {
-            Ok(self.ptr as *mut T)
-        }
-    }
+//     /// this will return a Result and if the RawPointer was created with `new_mut`
+//     /// it Will return `Ok` with the underlying mut raw pointer.
+//     /// if the struct was created with just `new` it will return `Err`.
+//     pub fn get_mut_ptr<T>(&self) -> Result<*mut T, &'static str> {
+//         if !self._mut {
+//             Err("This DoublePointer is not mutable")
+//         } else {
+//             Ok(self.ptr as *mut T)
+//         }
+//     }
 
-    /// This will unsafely cast the underlying pointer back into a reference.
-    pub unsafe fn get_ref<T>(&self) ->  &T {
-        &*(self.ptr as *const T)
-    }
+//     /// This will unsafely cast the underlying pointer back into a reference.
+//     pub unsafe fn get_ref<T>(&self) ->  &T {
+//         &*(self.ptr as *const T)
+//     }
 
-    /// This will unsafely cast the underlying pointer back into a mut pointer.
-    /// it will return a result and have the same rules as [`get_mut_ptr`]
-    ///
-    /// [`get_mut_ptr`]: #method.get_mut_ptr
-    pub unsafe fn get_mut_ref<T>(&self) -> Result<&mut T, &'static str> {
-        if !self._mut {
-            Err("This DoublePointer is not mutable")
-        } else {
-            Ok(&mut *(self.ptr as *mut T) )
-        }
-    }
+//     /// This will unsafely cast the underlying pointer back into a mut pointer.
+//     /// it will return a result and have the same rules as [`get_mut_ptr`]
+//     ///
+//     /// [`get_mut_ptr`]: #method.get_mut_ptr
+//     pub unsafe fn get_mut_ref<T>(&self) -> Result<&mut T, &'static str> {
+//         if !self._mut {
+//             Err("This DoublePointer is not mutable")
+//         } else {
+//             Ok(&mut *(self.ptr as *mut T) )
+//         }
+//     }
 
 
-}
+// }
 
 impl From<bool> for ResultStatus {
     fn from(i: bool) -> Self {
@@ -176,58 +174,58 @@ impl From<bool> for ResultStatus {
     }
 }
 
-impl Default for ExecuteResult {
-    fn default() -> ExecuteResult {
-        ExecuteResult {
-            output: ptr::null(),
-            delta_ptr: ptr::null(),
-            ethereum_payload_ptr: ptr::null(),
-            .. unsafe { mem::zeroed() }
-        }
-    }
-}
+// impl Default for ExecuteResult {
+//     fn default() -> ExecuteResult {
+//         ExecuteResult {
+//             output: ptr::null(),
+//             delta_ptr: ptr::null(),
+//             ethereum_payload_ptr: ptr::null(),
+//             .. unsafe { mem::zeroed() }
+//         }
+//     }
+// }
 
-impl fmt::Debug for ExecuteResult {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut debug_trait_builder = f.debug_struct("ExecuteResult");
-        debug_trait_builder.field("output", &(self.output));
-        debug_trait_builder.field("delta_ptr", &(self.delta_ptr));
-        debug_trait_builder.field("delta_index", &(self.delta_index));
-        debug_trait_builder.field("ethereum_payload_ptr", &(self.ethereum_payload_ptr));
-        debug_trait_builder.field("ethereum_address", &(self.ethereum_address));
-        debug_trait_builder.field("signature", &(&self.signature[..]));
-        debug_trait_builder.field("used_gas", &(self.used_gas));
-        debug_trait_builder.finish()
-    }
-}
+// impl fmt::Debug for ExecuteResult {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         let mut debug_trait_builder = f.debug_struct("ExecuteResult");
+//         debug_trait_builder.field("output", &(self.output));
+//         debug_trait_builder.field("delta_ptr", &(self.delta_ptr));
+//         debug_trait_builder.field("delta_index", &(self.delta_index));
+//         debug_trait_builder.field("ethereum_payload_ptr", &(self.ethereum_payload_ptr));
+//         debug_trait_builder.field("ethereum_address", &(self.ethereum_address));
+//         debug_trait_builder.field("signature", &(&self.signature[..]));
+//         debug_trait_builder.field("used_gas", &(self.used_gas));
+//         debug_trait_builder.finish()
+//     }
+// }
 
 impl Default for EnclaveReturn {
     fn default() -> EnclaveReturn { EnclaveReturn::Success }
 }
 
-impl fmt::Display for EnclaveReturn {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use self::EnclaveReturn::*;
-        let p = match *self {
-            Success => "EnclaveReturn: Success",
-            TaskFailure => "EnclaveReturn: Task failure",
-            KeysError => "EnclaveReturn: KeysError",
-            EncryptionError => "EnclaveReturn: EncryptionError",
-            SigningError => "EnclaveReturn: SigningError",
-            RecoveringError => "EnclaveReturn: RecoveringError",
-            PermissionError => "EnclaveReturn: PermissionError",
-            SgxError => "EnclaveReturn: SgxError",
-            StateError => "EnclaveReturn: StateError",
-            OcallError => "EnclaveReturn: OcallError",
-            OcallDBError => "EnclaveReturn: OcallDBError",
-            MessagingError => "EnclaveReturn: MessagingError",
-            WorkerAuthError => "EnclaveReturn: WorkerAuthError",
-            KeyProvisionError => "EnclaveReturn: KeyProvisionError",
-            Other => "EnclaveReturn: Other",
-        };
-        write!(f, "{}", p)
-    }
-}
+// impl fmt::Display for EnclaveReturn {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         use self::EnclaveReturn::*;
+//         let p = match *self {
+//             Success => "EnclaveReturn: Success",
+//             TaskFailure => "EnclaveReturn: Task failure",
+//             KeysError => "EnclaveReturn: KeysError",
+//             EncryptionError => "EnclaveReturn: EncryptionError",
+//             SigningError => "EnclaveReturn: SigningError",
+//             RecoveringError => "EnclaveReturn: RecoveringError",
+//             PermissionError => "EnclaveReturn: PermissionError",
+//             SgxError => "EnclaveReturn: SgxError",
+//             StateError => "EnclaveReturn: StateError",
+//             OcallError => "EnclaveReturn: OcallError",
+//             OcallDBError => "EnclaveReturn: OcallDBError",
+//             MessagingError => "EnclaveReturn: MessagingError",
+//             WorkerAuthError => "EnclaveReturn: WorkerAuthError",
+//             KeyProvisionError => "EnclaveReturn: KeyProvisionError",
+//             Other => "EnclaveReturn: Other",
+//         };
+//         write!(f, "{}", p)
+//     }
+// }
 
 
 /// This trait will convert a Result into EnclaveReturn.

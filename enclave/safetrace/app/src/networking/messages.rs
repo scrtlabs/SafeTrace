@@ -47,7 +47,7 @@ pub enum IpcResults {
     //EnclaveReport { #[serde(rename = "signingKey")] signing_key: String, report: String, signature: String },
     EnclaveReport { spid: String },
     #[serde(rename = "result")]
-    DHKey { dh_key: String, sig: String },
+    DHKey { taskPubKey: String, sig: String },
     AddPersonalData { status: Status },
     FindMatch { status: Status },
 }
