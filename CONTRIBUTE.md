@@ -1,7 +1,12 @@
-# Thank you!
+## How to get involved:
 
-- we're currently tracking new requests for features, bugs, and open questions via `Issues`. Feel free to open a new issue!
+- [open issues](https://github.com/enigmampc/SafeTrace/issues) to share ideas or questions, and feel free to leave any comments
+- join the conversation happening in our [Discord](https://discord.gg/vK7b45u) and on the [dev forum](https://forum.enigma.co/t/safetrace-privacy-preserving-contact-tracing-for-covid-19/1476)
+- participate in the [COVID-19 Global Hackathon](https://devpost.com/software/safetrace) March 26-30 ([discussion](https://join.slack.com/share/I010ZH2QHJB/pUfz8AQI3O41pugLTTB5BMNL/enQtMTAzMzU4MDgzMzYyMy0wYzY0YzRkYTdhYmNmZDNjMThmMjZlOTg5M2U5NDZlYWM0ODVjNTRhYTczM2VmZTA5NTIwNzRhMWNmZTQwZGU4))
+- get ready for DAIA's [COVIDathon](https://daia.foundation/covidathon) which starts April 1 ([discussion](https://discord.gg/NsX9Gzb))
 - we ask that changes to `master` be made via pull request
+
+***We are currently working on an MVP, and progress towards this can be tracked here: https://github.com/enigmampc/SafeTrace/projects/1 If you can help with any of the to-do or in-progress issues, please leave a comment there!***
 
 
 ## Contributing to SafeTrace Compute
@@ -25,3 +30,5 @@ We are doing research on:
 - what contact tracing tools exist
 - what data is most valuable for effective contact tracing
 - what is the most useful way to deploy this type of service (geographically delimited? via public health officials?)
+
+# Thank you!
