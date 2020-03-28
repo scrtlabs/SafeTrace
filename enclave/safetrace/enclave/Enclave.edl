@@ -26,7 +26,13 @@ enclave {
     trusted {
         /* define ECALLs here. */
 
-        public sgx_status_t ecall_add_personal_data([in, size=len] const uint8_t* some_string, size_t len);
+        public sgx_status_t ecall_add_personal_data(
+            [in, size=encryptedUserId_len] const uint8_t* encryptedUserId,
+            size_t encryptedUserId_len,
+            [in, size=encryptedData_len] const uint8_t* encryptedData,
+            size_t encryptedData_len,
+            [in] uint8_t user_key[64]
+            );
 
         public sgx_status_t ecall_get_user_key(
             [out] uint8_t sig[65],

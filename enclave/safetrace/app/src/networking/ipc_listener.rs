@@ -57,8 +57,14 @@ pub(self) mod handling {
     use serde_json::Value;
 
     extern {
-    fn ecall_add_personal_data(eid: sgx_enclave_id_t, ret: *mut sgx_status_t,
-                     some_string: *const u8, len: usize) -> sgx_status_t;
+    fn ecall_add_personal_data(
+        eid: sgx_enclave_id_t,
+        ret: *mut sgx_status_t,
+        encryptedUserId: *const u8,
+        encryptedUserId_len: usize,
+        encryptedData: *const u8,
+        encryptedData_len: usize,
+        userPubKey: &[u8; 64]) -> sgx_status_t;
     }
 
     type ResponseResult = Result<IpcResponse, Error>;
@@ -102,10 +108,20 @@ pub(self) mod handling {
     // TODO
     //#[logfn(DEBUG)]
     pub fn add_personal_data( input: IpcInput, eid: sgx_enclave_id_t) -> ResponseResult {
-        let mut ret = sgx_status_t::SGX_SUCCESS;
-        let data = serde_json::to_string(&input).unwrap();
 
-        unsafe { ecall_add_personal_data(eid, &mut ret as *mut sgx_status_t, data.as_ptr() as * const u8, data.len()) };
+        let mut ret = sgx_status_t::SGX_SUCCESS;
+        let encryptedUserId = input.encryptedUserId.from_hex()?;
+        let encryptedData = input.encryptedData.from_hex()?;
+        let mut userPubKey = [0u8; 64];
+        userPubKey.clone_from_slice(&input.userPubKey.from_hex()?);
+
+        unsafe { ecall_add_personal_data(eid,
+                                         &mut ret as *mut sgx_status_t,
+                                         encryptedUserId.as_ptr() as * const u8,
+                                         encryptedUserId.len(),
+                                         encryptedData.as_ptr() as * const u8,
+                                         encryptedData.len(),
+                                         &userPubKey) };
 
         let result = IpcResults::AddPersonalData { status: Status::Passed };
         Ok(IpcResponse::AddPersonalData { result })

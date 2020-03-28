@@ -36,12 +36,7 @@ extern crate lazy_static;
 // extern crate sgx_serialize_derive;
 
 use sgx_types::*;
-use std::string::String;
-use std::vec::Vec;
-use std::io::{self, Write};
 use std::{slice};
-//use std::{path::PathBuf, str};
-
 
 extern crate serde;
 extern crate serde_json;
@@ -50,6 +45,7 @@ extern crate tiny_keccak;
 extern crate sha2;
 extern crate rustc_hex;
 extern crate arrayvec;
+//extern crate ring;
 
 #[macro_use]
 mod macros;
@@ -61,11 +57,11 @@ mod types;
 mod hash;
 mod traits;
 
-use keys_t::{ecall_get_user_key_internal, KeyPair};
+use keys_t::{ecall_get_user_key_internal, KeyPair, DH_KEYS, LockExpectMutex};
 use data::ecall_add_personal_data_internal;
 use storage::*;
-use types::EnclaveReturn;
-use errors_t::EnclaveError;
+use types::{PubKey, DhKey, EnclaveReturn};
+use errors_t::{EnclaveError, CryptoError};
 use traits::SliceCPtr;
 
 lazy_static! {
@@ -114,8 +110,31 @@ pub unsafe extern "C" fn ecall_get_user_key(sig: &mut [u8; 65], user_pubkey: &[u
     EnclaveReturn::Success
 }
 
+fn get_io_key(user_key: &PubKey) -> Result<DhKey, EnclaveError> {
+    let io_key = DH_KEYS
+        .lock_expect("User DH Key")
+        .remove(&user_key[..])
+        .ok_or(CryptoError::MissingKeyError { key_type: "DH Key" })?;
+    Ok(io_key)
+}
+
 #[no_mangle]
-pub extern "C" fn ecall_add_personal_data(data_string: *const u8, data_len: usize) -> sgx_status_t {
-    ecall_add_personal_data_internal(data_string, data_len);
-    sgx_status_t::SGX_SUCCESS
+pub unsafe extern "C" fn ecall_add_personal_data(
+    encryptedUserId: *const u8,
+    encryptedUserId_len: usize,
+    encryptedData: *const u8,
+    encryptedData_len: usize,
+    userPubKey: &[u8; 64]) -> EnclaveReturn {
+
+    let encryptedUserId = slice::from_raw_parts(encryptedUserId, encryptedUserId_len);
+    let encryptedData = slice::from_raw_parts(encryptedData, encryptedData_len);
+
+    let io_key;
+    match get_io_key(userPubKey) {
+        Ok(v) => io_key = v,
+        Err(e) => return e.into(),
+    }
+
+    let result = ecall_add_personal_data_internal(encryptedUserId, encryptedData, userPubKey, &io_key);
+    EnclaveReturn::Success
 }

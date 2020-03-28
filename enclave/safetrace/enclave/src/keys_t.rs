@@ -1,11 +1,14 @@
 use crate::SIGNING_KEY;
-use types::{PubKey, DhKey};
+use types::{PubKey, DhKey, SymmetricKey};
 use std::collections::HashMap;
 use std::{sync::SgxMutex as Mutex, sync::SgxMutexGuard as MutexGuard, vec::Vec};
 use serde::{Deserialize, Serialize};
 use secp256k1::{PublicKey, SecretKey, SharedSecret};
 use errors_t::{CryptoError, EnclaveError, ToolsError::MessagingError};
 use hash::{Keccak256, prepare_hash_multiple};
+
+//use ring::aead::{self, Nonce, Aad};
+//use std::{borrow::ToOwned};
 
 
 #[derive(Debug)]
@@ -50,11 +53,11 @@ impl KeyPair {
         let pubkey = PublicKey::parse(&pubarr)
             .map_err(|e| CryptoError::KeyError { key_type: "Private Key", err: Some(e) })?;
 
-        // let shared = SharedSecret::new(&pubkey, &self.privkey)
-        //     .map_err(|_| CryptoError::DerivingKeyError { self_key: self.get_pubkey(), other_key: *_pubarr })?;
+        let shared = SharedSecret::new(&pubkey, &self.privkey)
+            .map_err(|_| CryptoError::DerivingKeyError { self_key: self.get_pubkey(), other_key: *_pubarr })?;
 
         let mut result = [0u8; 32];
-        //result.copy_from_slice(shared.as_ref());
+        result.copy_from_slice(shared.as_ref());
         Ok(result)
     }
 
@@ -160,6 +163,28 @@ impl UserMessage {
     //     pubkey
     // }
 }
+
+
+// const IV_SIZE: usize = 96/8;
+// static AES_MODE: &aead::Algorithm = &aead::AES_256_GCM;
+// type IV = [u8; IV_SIZE];
+
+// pub fn decrypt(cipheriv: &[u8], key: &SymmetricKey) -> Result<Vec<u8>, CryptoError> {
+//     if cipheriv.len() < IV_SIZE {
+//         return Err(CryptoError::ImproperEncryption);
+//     }
+//     let aes_decrypt = aead::OpeningKey::new(&AES_MODE, key)
+//         .map_err(|_| CryptoError::KeyError { key_type: "Decryption", err: None })?;
+
+//     let (ciphertext, iv) = cipheriv.split_at(cipheriv.len()-12);
+//     let nonce = aead::Nonce::try_assume_unique_for_key(&iv).unwrap(); // This Cannot fail because split_at promises that iv.len()==12
+//     let mut ciphertext = ciphertext.to_owned();
+//     let decrypted_data = aead::open_in_place(&aes_decrypt, nonce, Aad::empty(), 0, &mut ciphertext);
+//     let decrypted_data = decrypted_data.map_err(|_| CryptoError::DecryptionError)?;
+
+//     Ok(decrypted_data.to_vec())
+// }
+
 
 /// A trait that is basically a shortcut for `mutex.lock().expect(format!("{} mutex is posion", name))`
 /// you instead call `mutex.lock_expect(name)` and it will act the same.
