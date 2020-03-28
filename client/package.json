@@ -1,0 +1,19 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "enigma-js": "^0.3.0",
+    "eth-crypto": "^1.5.2",
+    "jayson": "^3.2.0",
+    "node-forge": "^0.9.1",
+    "web3-utils": "^1.2.6"
+  }
+}
