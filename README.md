@@ -1,3 +1,5 @@
+# PR test
+
 # COVID-19 Self-reporting with Privacy
 Privacy preserving voluntary COVID-19 self-reporting platform for contact tracing. Share your (encrypted) location history and test status, get a notification if you have been in proximity to higher risk locations. 
 
