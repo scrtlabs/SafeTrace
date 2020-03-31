@@ -117,3 +117,5 @@ fabric.properties
 
 /target
 **/*.rs.bk
+
+enigma-types.h

@@ -1,8 +1,6 @@
 use serde_json;
 use serde_repr::{Serialize_repr, Deserialize_repr};
 use zmq::Message;
-use failure::Error;
-use hex::ToHex;
 
 
 // These attributes enable the status to be casted as an i8 object as well
@@ -44,8 +42,7 @@ pub enum IpcResults {
     #[serde(rename = "result")]
     Request { request: String, sig: String },
     #[serde(rename = "result")]
-    //EnclaveReport { #[serde(rename = "signingKey")] signing_key: String, report: String, signature: String },
-    EnclaveReport { spid: String },
+    EnclaveReport { #[serde(rename = "signingKey")] signing_key: String, report: String, signature: String },
     #[serde(rename = "result")]
     DHKey { taskPubKey: String, sig: String },
     AddPersonalData { status: Status },
@@ -63,9 +60,9 @@ pub enum IpcRequest {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IpcInput {
-    pub encryptedUserId: String,
-    pub encryptedData: String,
-    pub userPubKey: String,
+    #[serde(rename = "encryptedUserId")] pub encrypted_userid: String,
+    #[serde(rename = "encryptedData")] pub encrypted_data: String,
+    #[serde(rename = "userPubKey")] pub user_pub_key: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -112,8 +109,7 @@ impl<E: std::fmt::Display> UnwrapError<IpcResponse> for Result<IpcResponse, E> {
         match self {
             Ok(m) => m,
             Err(e) => {
-                //error!("Unwrapped Message failed: {}", e);
-                panic!("Unwrapped Message failed: {}", e);
+                error!("Unwrapped Message failed: {}", e);
                 IpcResponse::Error {msg: format!("{}", e)}
             }
         }
