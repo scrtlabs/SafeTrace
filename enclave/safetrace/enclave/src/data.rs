@@ -88,37 +88,6 @@ pub fn create_sealeddata_for_serializable(data: &UserLocations, sealed_log_out: 
     EnclaveReturn::Success
 }
 
-// pub fn unsealeddata_for_serializable(sealed_log_in: &mut [u8; SEAL_LOG_SIZE]) -> enigma_types::EnclaveReturn {
-
-//     let sealed_log = sealed_log_in.as_mut_ptr();
-
-//     let opt = from_sealed_log_for_slice::<u8>(sealed_log, SEAL_LOG_SIZE as u32);
-//     let sealed_data = match opt {
-//         Some(x) => x,
-//         None => {
-//             panic!()
-//         },
-//     };
-
-//     let result = opt.unseal_data();
-//     let unsealed_data = match result {
-//         Ok(x) => Some(x),
-//         Err(ret) => {
-//             panic!(ret);
-//         },
-//     };
-
-//     let encoded_slice = unsealed_data.get_decrypt_txt();
-//     println!("Length of encoded slice: {}", encoded_slice.len());
-//     println!("Encoded slice: {:?}", encoded_slice);
-//     let data: UserLocations = serde_json::from_slice(encoded_slice).unwrap();
-
-//     println!("{:?}", data);
-
-//     EnclaveReturn::Success
-
-// }
-
 #[no_mangle]
 pub extern "C" fn verify_sealeddata_for_serializable(sealed_log: * mut u8, sealed_log_size: u32) -> sgx_status_t {
 
