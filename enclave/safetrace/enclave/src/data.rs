@@ -17,7 +17,8 @@ use std::untrusted::fs::File;
 use std::io::{Read, Write, self};
 
 
-use sgx_types::sgx_sealed_data_t;
+use sgx_types::{sgx_status_t, sgx_sealed_data_t};
+
 
 pub const SEAL_LOG_SIZE: usize = 4096;
 
@@ -87,8 +88,10 @@ pub fn create_sealeddata_for_serializable(data: &UserLocations, sealed_log_out: 
     EnclaveReturn::Success
 }
 
-// pub fn unsealeddata_for_serializable(sealed_log_in: &mut [u8; SEAL_LOG_SIZE]) -> Result<UserLocations, Error> {
+// pub fn unsealeddata_for_serializable(sealed_log_in: &mut [u8; SEAL_LOG_SIZE]) -> enigma_types::EnclaveReturn {
+
 //     let sealed_log = sealed_log_in.as_mut_ptr();
+
 //     let opt = from_sealed_log_for_slice::<u8>(sealed_log, SEAL_LOG_SIZE as u32);
 //     let sealed_data = match opt {
 //         Some(x) => x,
@@ -112,8 +115,38 @@ pub fn create_sealeddata_for_serializable(data: &UserLocations, sealed_log_out: 
 
 //     println!("{:?}", data);
 
-//     Ok(data)
+//     EnclaveReturn::Success
+
 // }
+
+#[no_mangle]
+pub extern "C" fn verify_sealeddata_for_serializable(sealed_log: * mut u8, sealed_log_size: u32) -> sgx_status_t {
+
+    let opt = from_sealed_log_for_slice::<u8>(sealed_log, sealed_log_size);
+    let sealed_data = match opt {
+        Some(x) => x,
+        None => {
+            return sgx_status_t::SGX_ERROR_INVALID_PARAMETER;
+        },
+    };
+
+    let result = sealed_data.unseal_data();
+    let unsealed_data = match result {
+        Ok(x) => x,
+        Err(ret) => {
+            return ret;
+        },
+    };
+
+    let encoded_slice = unsealed_data.get_decrypt_txt();
+    println!("Length of encoded slice: {}", encoded_slice.len());
+    println!("Encoded slice: {:?}", encoded_slice);
+    let data: UserLocations = serde_json::from_slice(encoded_slice).unwrap();
+
+    println!("{:?}", data);
+
+    sgx_status_t::SGX_SUCCESS
+}
 
 
 fn to_sealed_log_for_slice<T: Copy + ContiguousMemory>(sealed_data: &SgxSealedData<[T]>, sealed_log: * mut u8, sealed_log_size: u32) -> Option<* mut sgx_sealed_data_t> {
@@ -198,6 +231,9 @@ pub fn ecall_add_personal_data_internal(
     // unseal data
     // let unsealed_data = SecretKeyStorage::unseal_key(&mut sealed_log_out).unwrap();
     // let unsealed_data = unsealeddata_for_serializable(&mut sealed_log_out)?;
+
+    let sealed_log = sealed_log_out.as_mut_ptr();
+    verify_sealeddata_for_serializable(sealed_log, SEAL_LOG_SIZE as u32);
 
     // println!("{:?}", unsealed_data);
 
