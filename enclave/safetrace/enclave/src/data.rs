@@ -1,23 +1,29 @@
-// use serde::{Serialize, Deserialize};
-// use std::{slice};
-// use std::string::String;
 use enigma_tools_t::common::errors_t::{EnclaveError,  EnclaveError::*, FailedTaskError::*, EnclaveSystemError::*};
 use enigma_crypto::{symmetric::decrypt};
 use enigma_types::{DhKey, PubKey, EnclaveReturn};
-use std::string::String;
-use std::string::ToString;
-use std::vec::Vec;
-use std::str;
+use std::{
+    string::{String,ToString},
+    vec::Vec,
+    str,
+    collections::HashMap
+};
+
 use serde_json::{Value, json};
 use serde::{Deserialize, Serialize};
 use rmp_serde::{Deserializer, Serializer};
-
 
 use sgx_tseal::{SgxSealedData};
 use sgx_types::marker::ContiguousMemory;
 use std::untrusted::fs::File;
 use std::io::{Read, Write, self};
 use sgx_types::{sgx_status_t, sgx_sealed_data_t};
+
+pub const DATAFILE: &str = "data.sealed";
+pub const TOVERLAP: i32 = 300;           // 5min * 60s minimum overlap
+pub const DISTANCE: f64 = 10.0;          // in meters
+pub const EARTH_RADIUS: f64 = 6371000.0; // in meters
+pub const SEAL_LOG_SIZE: usize = 0x100000;   // Maximum data can seal in bytes
+
 
 pub enum Error {
     SliceError,
@@ -33,28 +39,14 @@ impl From<Error> for EnclaveError {
     }
 }
 
-pub const SEAL_LOG_SIZE: usize = 4096;
 
 // Structs
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct GeolocationTime {
-    lat: f32,
-    lng: f32,
+    lat: f64,
+    lng: f64,
     startTS: i32,
     endTS: i32,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct UserLocations {
-  pub locations: Vec<GeolocationTime>,
-  pub user_id: String,
-}
-
-#[derive(Serialize, Deserialize, Clone, Default, Debug)]
-pub struct UserLocationsArray {
-    key: u32,
-    rand: [u8; 16],
-    vec: Vec<UserLocations>
 }
 
 pub fn decrypt_userid(userid: &[u8], key: &DhKey) -> Result<Vec<u8>, EnclaveError> {
@@ -73,7 +65,8 @@ pub fn decrypt_data(data: &[u8], key: &DhKey) -> Result<Vec<u8>, EnclaveError> {
     }
 }
 
-pub fn create_sealeddata_for_serializable(data: &UserLocations, sealed_log_out: &mut [u8; SEAL_LOG_SIZE]) -> enigma_types::EnclaveReturn {
+//pub fn create_sealeddata_for_serializable(data: &UserLocations, sealed_log_out: &mut [u8; SEAL_LOG_SIZE]) -> enigma_types::EnclaveReturn {
+pub fn create_sealeddata_for_serializable(data: HashMap<String, Vec<GeolocationTime>>, sealed_log_out: &mut [u8; SEAL_LOG_SIZE]) -> enigma_types::EnclaveReturn {
 
     let encoded_vec = serde_json::to_vec(&data).unwrap();
     let encoded_slice = encoded_vec.as_slice();
@@ -97,7 +90,7 @@ pub fn create_sealeddata_for_serializable(data: &UserLocations, sealed_log_out: 
     EnclaveReturn::Success
 }
 
-pub fn recover_sealeddata_for_serializable(sealed_log: * mut u8, sealed_log_size: u32) -> Result<UserLocations, Error> {
+pub fn recover_sealeddata_for_serializable(sealed_log: * mut u8, sealed_log_size: u32) -> Result<HashMap<String, Vec<GeolocationTime>>, Error> {
 
     let sealed_data = from_sealed_log_for_slice::<u8>(sealed_log, sealed_log_size).ok_or(Error::SliceError)?;
     let unsealed_data = sealed_data.unseal_data().map_err(|err| Error::UnsealError(err))?;
@@ -105,7 +98,8 @@ pub fn recover_sealeddata_for_serializable(sealed_log: * mut u8, sealed_log_size
 
     // println!("Length of encoded slice: {}", encoded_slice.len());
     // println!("Encoded slice: {:?}", encoded_slice);
-    let data: UserLocations = serde_json::from_slice(encoded_slice).unwrap();
+    
+    let data: HashMap<String, Vec<GeolocationTime>> = serde_json::from_slice(encoded_slice).unwrap();
 
     Ok(data)
 }
@@ -140,16 +134,35 @@ pub fn save_sealed_data(path: &str, sealed_data: &[u8]) {
 }
 
 // Load sealed data from disk
-pub fn load_sealed_data(path: &str, sealed_data: &mut [u8]) {
-    let opt = File::open(path);
-    if opt.is_ok() {
-        debug_println!("Created file => {} ", path);
-        let mut file = opt.unwrap();
-        let result = file.read(sealed_data);
-        if result.is_ok() {
-            debug_println!("success writting to file! ");
-        } else {
-            debug_println!("error writting to file! ");
+pub fn load_sealed_data(path: &str, sealed_data: &mut [u8]) -> Result<(), String> {
+    let mut file = match File::open(path) {
+        Err(why) => return Err("Error opening the file".to_string()),
+        Ok(file) => file,
+    };
+    debug_println!("Created file => {} ", path);
+        
+    let result = file.read(sealed_data);
+    if result.is_ok() {
+        debug_println!("success reading from file! ");
+    } else {
+        debug_println!("error reading from file! ");
+    }
+    Ok(())
+
+}
+
+pub fn unseal_data_wrapper() -> Result<HashMap<String, Vec<GeolocationTime>>, Error> {
+    let p = DATAFILE;
+    let mut sealed_log_out = [0u8; SEAL_LOG_SIZE];
+    match load_sealed_data(&p, &mut sealed_log_out) {
+        Ok(_) => {
+            let sealed_log = sealed_log_out.as_mut_ptr();
+            let mut data = recover_sealeddata_for_serializable(sealed_log, SEAL_LOG_SIZE as u32)?;
+            Ok(data)
+        },
+        Err(err) => {
+            let mut data = HashMap::new();
+            Ok(data)
         }
     }
 }
@@ -175,27 +188,21 @@ pub fn add_personal_data_internal(
     // Deserialize decrypted input data into expected format
     let mut inputData: Vec<GeolocationTime> = serde_json::from_slice(&decrypted_data).unwrap();
 
-    // Construct user data
-    let userData = UserLocations {
-        user_id: userid.to_string(),
-        locations: inputData,
-    };
+    let mut data = unseal_data_wrapper()?;
+    //let mut data = HashMap::new();
+
+    data.insert(userid.to_string(), inputData);
 
     // Seal the data and store it on disk
     let mut sealed_log_in = [0u8; SEAL_LOG_SIZE];
-    create_sealeddata_for_serializable(&userData, &mut sealed_log_in);
-    let p = String::from("data.sealed");
+    create_sealeddata_for_serializable(data, &mut sealed_log_in);
+
+    let p = DATAFILE;
     save_sealed_data(&p, &sealed_log_in);
 
-
-    // Retrieve sealed data
-    let p = String::from("data.sealed");
-    let mut sealed_log_out: [u8; SEAL_LOG_SIZE] = [0; SEAL_LOG_SIZE];
-    load_sealed_data(&p, &mut sealed_log_out);
-
-    let sealed_log = sealed_log_out.as_mut_ptr();
-    let data = recover_sealeddata_for_serializable(sealed_log, SEAL_LOG_SIZE as u32)?;
-    println!("{:?}", data);
+    let mut newdata = unseal_data_wrapper()?;
+    println!("This is what we got");
+    println!("{:?}", newdata);
 
     Ok(())
 }
@@ -214,20 +221,43 @@ pub fn find_match_internal(
         Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
     };
 
-    // Retrieve sealed data
-    let p = String::from("data.sealed");
-    let mut sealed_log_out: [u8; SEAL_LOG_SIZE] = [0; SEAL_LOG_SIZE];
-    load_sealed_data(&p, &mut sealed_log_out);
+    let data = unseal_data_wrapper()?;
 
-    let sealed_log = sealed_log_out.as_mut_ptr();
-    let data = recover_sealeddata_for_serializable(sealed_log, SEAL_LOG_SIZE as u32)?;
-    println!("{:?}", data.locations);
+    let mut results = Vec::new();
 
-    let mut results = data.iter().filter(|item| item.user_id != userid).filter(|item| item.lat > 0 ).collect();
+    // This is the algorithm to find overlaps in time and space, defined in time by TOVERLAP (in seconds)
+    // and in space by DISTANCE (in meters)
+    // We iterate over all values in the set, excluding the user we are looking for matches. 
+    // For all of them, we iterate over all locations and compare them with all locations from the user
+    for (key, val) in data.iter() {
+        if key != &userid {
+            for d in data[userid].clone() {
+                for e in val.iter() {
+                    // It's easier to find overlaps in time because it's a direct comparison of integers
+                    // so handle this first:
+                    // Both time intervals have to be larger than the minumum time overlap TOVERLAP
+                    // and both start times + TOVERLAP have to be smaller than the other end times
+                    if d.endTS - d.startTS > TOVERLAP &&
+                       e.endTS - e.startTS > TOVERLAP &&
+                       d.startTS + TOVERLAP < e.endTS && e.startTS + TOVERLAP < d.endTS {
+                        // We start comparing distance between latitudes. Each degree of lat is aprox
+                        // 111 kms (range varies between 110.567 km at the equator to 111.699 km at the poles)
+                        // The distance between two locations will be equal or larger than the distance between 
+                        // their latitudes (or the distance between lats will be smaller than the distance * cos(45))
+                        if (e.lat - d.lat).abs() * 111000.0 <  DISTANCE * 0.71 {
+                            // then we can run a more computationally expensive and precise comparison
+                            if (e.lat.sin()*d.lat.sin()+e.lat.cos()*d.lat.cos()*(e.lng-d.lng).cos()).acos() * EARTH_RADIUS < DISTANCE {
+                                results.push(e);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     let mut buf = Vec::new();
-    //let val = serde_json::to_value(data.locations).map_err(|_| Error::SerializeError)?;
-    let val = json!([]);
+    let val = serde_json::to_value(results).map_err(|_| Error::SerializeError)?;
     val.serialize(&mut Serializer::new(&mut buf)).map_err(|_| Error::SerializeError)?;
 
     Ok(buf)

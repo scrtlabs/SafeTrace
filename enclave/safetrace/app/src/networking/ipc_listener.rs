@@ -187,8 +187,6 @@ pub(self) mod handling {
         let mut des = Deserializer::new(&part[..]);
         let res: Value = Deserialize::deserialize(&mut des).unwrap();
 
-        println!("HERE");
-        println!("{:?}", res);
         let matches = serde_json::from_value::<Vec<GeolocationTime>>(res)?;
 
         //let output = res.as_array().unwrap().clone();
