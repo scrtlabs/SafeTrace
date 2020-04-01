@@ -245,6 +245,8 @@ pub fn find_match_internal(
                             // 111 kms (range varies between 110.567 km at the equator to 111.699 km at the poles)
                             // The distance between two locations will be equal or larger than the distance between 
                             // their latitudes (or the distance between lats will be smaller than the distance * cos(45))
+                            // Source:
+                            // https://stackoverflow.com/questions/5031268/algorithm-to-find-all-latitude-longitude-locations-within-a-certain-distance-fro
                             if (e.lat - d.lat).abs() * 111000.0 <  DISTANCE * 0.71 {
                                 // then we can run a more computationally expensive and precise comparison
                                 if (e.lat.sin()*d.lat.sin()+e.lat.cos()*d.lat.cos()*(e.lng-d.lng).cos()).acos() * EARTH_RADIUS < DISTANCE {
