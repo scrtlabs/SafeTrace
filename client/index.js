@@ -73,6 +73,15 @@ function encrypt(taskPubKey, privateKey, variable){
     return enigma.utils.encryptMessage(derivedKey, variable);
 }
 
+function decrypt(taskPubKey, privateKey, enc_variable){
+    // Generate derived key from enclave public encryption key and user's private key
+    const derivedKey = enigma.utils.getDerivedKey(taskPubKey, privateKey);
+    // Decrypt function and ABI-encoded args
+    let outputHex = enigma.utils.decryptMessage(derivedKey, enc_variable);
+    let outputStr = enigma.utils.hexToAscii(outputHex);
+    return JSON.parse(outputStr);
+}
+
 
 async function addData(userId, data){
 
@@ -133,9 +142,12 @@ async function findMatch(userId){
 
     if(findMatchResult.findMatch.status == 0) {
       console.log('Find Match operation successful');
-      if(findMatchResult.findMatch.matches.length){
+
+      let output = decrypt(taskPubKey, privateKey, findMatchResult.findMatch.encryptedOutput);
+
+      if(output.length){
         console.log('Find matches:');
-        console.log(findMatchResult.findMatch.matches);
+        console.log(output);
       } else {
         console.log('No matches');
       }

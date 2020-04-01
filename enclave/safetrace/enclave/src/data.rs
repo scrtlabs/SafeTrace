@@ -1,5 +1,5 @@
 use enigma_tools_t::common::errors_t::{EnclaveError,  EnclaveError::*, FailedTaskError::*, EnclaveSystemError::*};
-use enigma_crypto::{symmetric::decrypt};
+use enigma_crypto::{symmetric::decrypt, symmetric::encrypt};
 use enigma_types::{DhKey, PubKey, EnclaveReturn};
 use std::{
     string::{String,ToString},
@@ -38,7 +38,6 @@ impl From<Error> for EnclaveError {
         EnclaveError::SystemError(MessagingError{ err: "Error unsealing data".to_string() })
     }
 }
-
 
 // Structs
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -249,7 +248,7 @@ pub fn find_match_internal(
                             if (e.lat - d.lat).abs() * 111000.0 <  DISTANCE * 0.71 {
                                 // then we can run a more computationally expensive and precise comparison
                                 if (e.lat.sin()*d.lat.sin()+e.lat.cos()*d.lat.cos()*(e.lng-d.lng).cos()).acos() * EARTH_RADIUS < DISTANCE {
-                                    results.push(e);
+                                    results.push(d.clone());
                                 }
                             }
                         }
@@ -259,9 +258,9 @@ pub fn find_match_internal(
         }
     }
 
-    let mut buf = Vec::new();
-    let val = serde_json::to_value(results).map_err(|_| Error::SerializeError)?;
-    val.serialize(&mut Serializer::new(&mut buf)).map_err(|_| Error::SerializeError)?;
+    let serialized_results = serde_json::to_string(&results).map_err(|err| Error::SerializeError)?;
+    let array_u8_results = serialized_results.as_bytes();
+    let encrypted_output = encrypt(array_u8_results, dhKey)?;
 
-    Ok(buf)
+    Ok(encrypted_output)
 }

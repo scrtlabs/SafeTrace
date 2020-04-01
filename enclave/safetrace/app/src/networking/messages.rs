@@ -54,7 +54,7 @@ pub enum IpcResults {
     #[serde(rename = "result")]
     DHKey { taskPubKey: String, sig: String },
     AddPersonalData { status: Status },
-    FindMatch { status: Status, matches: Vec<GeolocationTime> },
+    FindMatch { status: Status, encryptedOutput: String },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

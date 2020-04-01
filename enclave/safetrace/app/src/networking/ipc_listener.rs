@@ -184,22 +184,7 @@ pub(self) mod handling {
         let box_ptr = serialized_ptr as *mut Box<[u8]>;
         let part = unsafe { Box::from_raw(box_ptr) };
 
-        let mut des = Deserializer::new(&part[..]);
-        let res: Value = Deserialize::deserialize(&mut des).unwrap();
-
-        let matches = serde_json::from_value::<Vec<GeolocationTime>>(res)?;
-
-        //let output = res.as_array().unwrap().clone();
-
-        // // TODO: Should not panic, propagate error instead
-        // let output_json = match String::from_utf8(output) {
-        //     Ok(v) => v,
-        //     Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-        // };
-
-        //println!("{}", output_json);
-
-        let result = IpcResults::FindMatch { status: Status::Passed, matches: matches};
+        let result = IpcResults::FindMatch { status: Status::Passed, encryptedOutput: part.to_hex()};
         Ok(IpcResponse::FindMatch { result })
     }
 
