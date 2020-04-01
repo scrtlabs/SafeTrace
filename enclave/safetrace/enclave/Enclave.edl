@@ -49,6 +49,12 @@ enclave {
 
         public void ecall_get_signing_address([out] uint8_t arr[20]);
 
+        public sgx_status_t ecall_find_match(
+            [in, size=encryptedUserId_len] const uint8_t* encryptedUserId,
+            size_t encryptedUserId_len,
+            [in] uint8_t user_key[64],
+            [out] uint64_t* serialized_ptr);
+
     };
     untrusted {
         uint64_t ocall_save_to_memory([in, count=data_len] const uint8_t* data_ptr, size_t data_len);

@@ -9,7 +9,7 @@ use std::{sync::SgxMutex, vec::Vec};
 
 lazy_static! { pub static ref DH_KEYS: SgxMutex<HashMap<Vec<u8>, DhKey>> = SgxMutex::new(HashMap::new()); }
 
-pub(crate) unsafe fn ecall_get_user_key_internal(sig: &mut [u8; 65], user_pubkey: &PubKey) -> Result<Vec<u8>, EnclaveError> {
+pub(crate) unsafe fn get_user_key_internal(sig: &mut [u8; 65], user_pubkey: &PubKey) -> Result<Vec<u8>, EnclaveError> {
     let keys = KeyPair::new()?;
     let req = UserMessage::new(keys.get_pubkey());
     *sig = SIGNING_KEY.sign(&req.to_sign())?;

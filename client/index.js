@@ -47,11 +47,9 @@ function getClientKeys(seed='') {
   return {privateKey, publicKey};
 }
 
-async function add_data(userId, data){
+async function addData(userId, data){
 
   let {publicKey, privateKey} = getClientKeys();
-
-  console.log(publicKey)
 
   try {
     const getWorkerEncryptionKeyResult = await new Promise((resolve, reject) => {
@@ -79,10 +77,6 @@ async function add_data(userId, data){
       {t: 'bytes', v: encryptedData},
     );
 
-    // const a = getClientKeys();
-
-    // console.log(a.publicKey);
-
     const addPersonalDataResult = await new Promise((resolve, reject) => {
       client.request('addPersonalData', {
         encryptedUserId: encryptedUserId, 
@@ -104,14 +98,72 @@ async function add_data(userId, data){
     } else {
       console.log('Something went wrong. Time to debug...')
     }
-    
 
   } catch(err) {
       console.log(err);
       // Or Throw an error
   }
-
 }
+
+async function findMatch(userId){
+
+  let {publicKey, privateKey} = getClientKeys();
+
+  try {
+    const getWorkerEncryptionKeyResult = await new Promise((resolve, reject) => {
+      client.request('newTaskEncryptionKey', {userPubKey: publicKey},
+          (err, response) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+            resolve(response);
+          });
+      });
+
+    const {result, id} = getWorkerEncryptionKeyResult;
+    const {taskPubKey, sig} = result;
+    // ToDo: verify signature
+
+    // Generate derived key from worker's encryption key and user's private key
+    const derivedKey = enigma.utils.getDerivedKey(taskPubKey, privateKey);
+    // Encrypt function and ABI-encoded args
+    const encryptedUserId = enigma.utils.encryptMessage(derivedKey, userId);
+    const msg = web3utils.soliditySha3(
+      {t: 'bytes', v: encryptedUserId},
+    );
+
+    const findMatchResult = await new Promise((resolve, reject) => {
+      client.request('findMatch', {
+        encryptedUserId: encryptedUserId, 
+        userPubKey: publicKey},
+          (err, response) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+            resolve(response);
+          });
+      });
+
+    console.log(findMatchResult);
+    console.log(findMatchResult.findMatch)
+
+    // const {findMatch} = findMatchResult;
+
+    // if(findMatch.status == 0) {
+    //   console.log('Find Match operation successful');
+    //   console.log()
+    // } else {
+    //   console.log('Something went wrong. Time to debug...')
+    // }
+
+  } catch(err) {
+      console.log(err);
+      // Or Throw an error
+  }
+}
+
 
 let myData = [
   {
@@ -128,4 +180,6 @@ let myData = [
   },
 ]
 
-add_data('myUserId', JSON.stringify(myData))
+// addData('myUserId', JSON.stringify(myData))
+
+findMatch('myUserId');

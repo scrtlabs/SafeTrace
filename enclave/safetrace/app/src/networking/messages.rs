@@ -11,6 +11,14 @@ pub enum Status {
     Passed = 0,
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct GeolocationTime {
+    lat: f32,
+    lng: f32,
+    startTS: i32,
+    endTS: i32,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IpcMessageRequest {
     pub id: String,
@@ -46,7 +54,7 @@ pub enum IpcResults {
     #[serde(rename = "result")]
     DHKey { taskPubKey: String, sig: String },
     AddPersonalData { status: Status },
-    FindMatch { status: Status },
+    FindMatch { status: Status, matches: Vec<GeolocationTime> },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -54,14 +62,20 @@ pub enum IpcResults {
 pub enum IpcRequest {
     GetEnclaveReport,
     NewTaskEncryptionKey { userPubKey: String },
-    AddPersonalData { input: IpcInput },
-    FindMatch { input: IpcInput },
+    AddPersonalData { input: IpcInputData },
+    FindMatch { input: IpcInputMatch },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct IpcInput {
+pub struct IpcInputData {
     #[serde(rename = "encryptedUserId")] pub encrypted_userid: String,
     #[serde(rename = "encryptedData")] pub encrypted_data: String,
+    #[serde(rename = "userPubKey")] pub user_pub_key: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IpcInputMatch {
+    #[serde(rename = "encryptedUserId")] pub encrypted_userid: String,
     #[serde(rename = "userPubKey")] pub user_pub_key: String,
 }
 

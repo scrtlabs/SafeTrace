@@ -61,16 +61,29 @@ pub(self) mod handling {
         esgx::equote as equote_tools,
         attestation_service::{service::AttestationService, constants::ATTESTATION_SERVICE_URL},
     };
+    use enigma_types::{EnclaveReturn};
+
 
     extern {
-    fn ecall_add_personal_data(
-        eid: sgx_enclave_id_t,
-        ret: *mut sgx_status_t,
-        encryptedUserId: *const u8,
-        encryptedUserId_len: usize,
-        encryptedData: *const u8,
-        encryptedData_len: usize,
-        userPubKey: &[u8; 64]) -> sgx_status_t;
+        fn ecall_add_personal_data(
+            eid: sgx_enclave_id_t,
+            ret: *mut sgx_status_t,
+            encryptedUserId: *const u8,
+            encryptedUserId_len: usize,
+            encryptedData: *const u8,
+            encryptedData_len: usize,
+            userPubKey: &[u8; 64]) -> sgx_status_t;
+    }
+
+    extern {
+        fn ecall_find_match(
+                eid: sgx_enclave_id_t,
+                ret: *mut sgx_status_t,
+                encryptedUserId: *const u8,
+                encryptedUserId_len: usize,
+                userPubKey: &[u8; 64],
+                serialized_ptr: *mut u64
+            ) -> sgx_status_t;
     }
 
     type ResponseResult = Result<IpcResponse, Error>;
@@ -127,7 +140,7 @@ pub(self) mod handling {
 
     // TODO
     //#[logfn(DEBUG)]
-    pub fn add_personal_data( input: IpcInput, eid: sgx_enclave_id_t) -> ResponseResult {
+    pub fn add_personal_data(input: IpcInputData, eid: sgx_enclave_id_t) -> ResponseResult {
 
         let mut ret = sgx_status_t::SGX_SUCCESS;
         let encrypted_userid = input.encrypted_userid.from_hex()?;
@@ -149,8 +162,46 @@ pub(self) mod handling {
 
     // TODO
     //#[logfn(DEBUG)]
-    pub fn find_match( input: IpcInput, eid: sgx_enclave_id_t) -> ResponseResult {
-        let result = IpcResults::FindMatch { status: Status::Passed };
+    pub fn find_match( input: IpcInputMatch, eid: sgx_enclave_id_t) -> ResponseResult {
+
+        let mut ret = sgx_status_t::SGX_SUCCESS;
+        let mut serialized_ptr = 0u64;
+        let encrypted_userid = input.encrypted_userid.from_hex()?;
+        let mut user_pub_key = [0u8; 64];
+        user_pub_key.clone_from_slice(&input.user_pub_key.from_hex()?);
+
+        let status = unsafe { 
+            ecall_find_match(
+                eid,
+                &mut ret as *mut sgx_status_t,
+                encrypted_userid.as_ptr() as * const u8,
+                encrypted_userid.len(),
+                &user_pub_key,
+                &mut serialized_ptr as *mut u64
+            )
+        };
+
+        let box_ptr = serialized_ptr as *mut Box<[u8]>;
+        let part = unsafe { Box::from_raw(box_ptr) };
+
+        let mut des = Deserializer::new(&part[..]);
+        let res: Value = Deserialize::deserialize(&mut des).unwrap();
+
+        println!("HERE");
+        println!("{:?}", res);
+        let matches = serde_json::from_value::<Vec<GeolocationTime>>(res)?;
+
+        //let output = res.as_array().unwrap().clone();
+
+        // // TODO: Should not panic, propagate error instead
+        // let output_json = match String::from_utf8(output) {
+        //     Ok(v) => v,
+        //     Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+        // };
+
+        //println!("{}", output_json);
+
+        let result = IpcResults::FindMatch { status: Status::Passed, matches: matches};
         Ok(IpcResponse::FindMatch { result })
     }
 

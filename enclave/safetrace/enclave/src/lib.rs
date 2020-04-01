@@ -69,8 +69,8 @@ mod keys_t;
 // mod traits;
 
 use sgx_types::*;
-use keys_t::{ecall_get_user_key_internal};
-use data::ecall_add_personal_data_internal;
+use keys_t::{get_user_key_internal};
+use data::{add_personal_data_internal, find_match_internal};
 // use storage::*;
 use enigma_types::{PubKey, DhKey, EnclaveReturn};
 use enigma_tools_t::{
@@ -119,7 +119,7 @@ fn get_sealed_keys_wrapper() -> asymmetric::KeyPair {
 #[no_mangle]
 pub unsafe extern "C" fn ecall_get_user_key(sig: &mut [u8; 65], user_pubkey: &[u8; 64], serialized_ptr: *mut u64) -> EnclaveReturn  {
     println!("Get User Key called inside enclave");
-    let msg = match ecall_get_user_key_internal(sig, user_pubkey) {
+    let msg = match get_user_key_internal(sig, user_pubkey) {
         Ok(msg) => msg,
         Err(e) => return e.into(),
     };
@@ -155,6 +155,34 @@ pub unsafe extern "C" fn ecall_add_personal_data(
         Err(e) => return e.into(),
     }
 
-    let result = ecall_add_personal_data_internal(encryptedUserId, encryptedData, userPubKey, &io_key);
+    let result = add_personal_data_internal(encryptedUserId, encryptedData, userPubKey, &io_key);
+
+    EnclaveReturn::Success
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn ecall_find_match(
+    encryptedUserId: *const u8,
+    encryptedUserId_len: usize,
+    userPubKey: &[u8; 64],
+    serialized_ptr: *mut u64) -> EnclaveReturn {
+
+    let encryptedUserId = slice::from_raw_parts(encryptedUserId, encryptedUserId_len);
+
+    let io_key;
+    match get_io_key(userPubKey) {
+        Ok(v) => io_key = v,
+        Err(e) => return e.into(),
+    }
+
+    let msg = match find_match_internal(encryptedUserId, userPubKey, &io_key) {
+        Ok(msg) => msg,
+        Err(e) => return e.into(),
+    };
+    *serialized_ptr = match ocalls_t::save_to_untrusted_memory(&msg[..]) {
+        Ok(ptr) => ptr,
+        Err(e) => return e.into(),
+    };
+
     EnclaveReturn::Success
 }

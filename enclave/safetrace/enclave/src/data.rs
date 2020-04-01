@@ -8,24 +8,36 @@ use std::string::String;
 use std::string::ToString;
 use std::vec::Vec;
 use std::str;
-use serde_json::{Value};
+use serde_json::{Value, json};
 use serde::{Deserialize, Serialize};
+use rmp_serde::{Deserializer, Serializer};
+
 
 use sgx_tseal::{SgxSealedData};
 use sgx_types::marker::ContiguousMemory;
 use std::untrusted::fs::File;
 use std::io::{Read, Write, self};
-
-
 use sgx_types::{sgx_status_t, sgx_sealed_data_t};
 
+pub enum Error {
+    SliceError,
+    UnsealError(sgx_status_t),
+    SerializeError,
+    Other
+}
+
+// TODO: Do proper mapping, using a generic for now
+impl From<Error> for EnclaveError {
+    fn from(other: Error) -> EnclaveError {
+        EnclaveError::SystemError(MessagingError{ err: "Error unsealing data".to_string() })
+    }
+}
 
 pub const SEAL_LOG_SIZE: usize = 4096;
 
 // Structs
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct GeolocationTime {
-    #[serde(default)]
     lat: f32,
     lng: f32,
     startTS: i32,
@@ -61,13 +73,12 @@ pub fn decrypt_data(data: &[u8], key: &DhKey) -> Result<Vec<u8>, EnclaveError> {
     }
 }
 
-#[no_mangle]
 pub fn create_sealeddata_for_serializable(data: &UserLocations, sealed_log_out: &mut [u8; SEAL_LOG_SIZE]) -> enigma_types::EnclaveReturn {
 
     let encoded_vec = serde_json::to_vec(&data).unwrap();
     let encoded_slice = encoded_vec.as_slice();
-    println!("Length of encoded slice: {}", encoded_slice.len());
-    println!("Encoded slice: {:?}", encoded_slice);
+    // println!("Length of encoded slice: {}", encoded_slice.len());
+    // println!("Encoded slice: {:?}", encoded_slice);
 
     let aad: [u8; 0] = [0_u8; 0];
     let result = SgxSealedData::<[u8]>::seal_data(&aad, encoded_slice);
@@ -83,38 +94,20 @@ pub fn create_sealeddata_for_serializable(data: &UserLocations, sealed_log_out: 
         return EnclaveReturn::SgxError;
     }
 
-    println!("{:?}", data);
-
     EnclaveReturn::Success
 }
 
-#[no_mangle]
-pub extern "C" fn verify_sealeddata_for_serializable(sealed_log: * mut u8, sealed_log_size: u32) -> sgx_status_t {
+pub fn recover_sealeddata_for_serializable(sealed_log: * mut u8, sealed_log_size: u32) -> Result<UserLocations, Error> {
 
-    let opt = from_sealed_log_for_slice::<u8>(sealed_log, sealed_log_size);
-    let sealed_data = match opt {
-        Some(x) => x,
-        None => {
-            return sgx_status_t::SGX_ERROR_INVALID_PARAMETER;
-        },
-    };
-
-    let result = sealed_data.unseal_data();
-    let unsealed_data = match result {
-        Ok(x) => x,
-        Err(ret) => {
-            return ret;
-        },
-    };
-
+    let sealed_data = from_sealed_log_for_slice::<u8>(sealed_log, sealed_log_size).ok_or(Error::SliceError)?;
+    let unsealed_data = sealed_data.unseal_data().map_err(|err| Error::UnsealError(err))?;
     let encoded_slice = unsealed_data.get_decrypt_txt();
-    println!("Length of encoded slice: {}", encoded_slice.len());
-    println!("Encoded slice: {:?}", encoded_slice);
+
+    // println!("Length of encoded slice: {}", encoded_slice.len());
+    // println!("Encoded slice: {:?}", encoded_slice);
     let data: UserLocations = serde_json::from_slice(encoded_slice).unwrap();
 
-    println!("{:?}", data);
-
-    sgx_status_t::SGX_SUCCESS
+    Ok(data)
 }
 
 
@@ -131,7 +124,7 @@ fn from_sealed_log_for_slice<'a, T: Copy + ContiguousMemory>(sealed_log: * mut u
 }
 
 
-// file system
+// Save sealed data to disk
 pub fn save_sealed_data(path: &str, sealed_data: &[u8]) {
     let opt = File::create(path);
     if opt.is_ok() {
@@ -146,6 +139,7 @@ pub fn save_sealed_data(path: &str, sealed_data: &[u8]) {
     }
 }
 
+// Load sealed data from disk
 pub fn load_sealed_data(path: &str, sealed_data: &mut [u8]) {
     let opt = File::open(path);
     if opt.is_ok() {
@@ -160,7 +154,7 @@ pub fn load_sealed_data(path: &str, sealed_data: &mut [u8]) {
     }
 }
 
-pub fn ecall_add_personal_data_internal(
+pub fn add_personal_data_internal(
     encryptedUserId: &[u8],
     encryptedData: &[u8],
     userPubKey: &PubKey,
@@ -168,44 +162,73 @@ pub fn ecall_add_personal_data_internal(
 
     println!("Add personal data inside the enclave");
 
-    // let decrypted_userid = decrypt_userid(encryptedUserId, &dhKey)?;
-    // let decrypted_data = decrypt_data(encryptedData, &dhKey)?;
+    // Decrypt inputs using dhKey
+    let decrypted_userid = decrypt_userid(encryptedUserId, dhKey)?;
+    let decrypted_data = decrypt_data(encryptedData, dhKey)?;
 
-    // // //let userid = u8_to_string(decrypt_userid)?;
-    // let userid = match str::from_utf8(&decrypted_userid) {
-    //     Ok(v) => v,
-    //     Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-    // }; 
+    // TODO: Should not panic, propagate error instead
+    let userid = match str::from_utf8(&decrypted_userid) {
+        Ok(v) => v,
+        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+    }; 
 
-    // // let userid = std::str::from_utf8(decrypted_userid)?;
+    // Deserialize decrypted input data into expected format
+    let mut inputData: Vec<GeolocationTime> = serde_json::from_slice(&decrypted_data).unwrap();
 
-    // let mut inputData: Vec<GeolocationTime> = serde_json::from_slice(&decrypted_data).unwrap();
-    // let userData = UserLocations {
-    //     user_id: userid.to_string(),
-    //     locations: inputData,
-    // };
+    // Construct user data
+    let userData = UserLocations {
+        user_id: userid.to_string(),
+        locations: inputData,
+    };
 
-    // let mut sealed_log_in = [0u8; SEAL_LOG_SIZE];
-
-    // create_sealeddata_for_serializable(&userData, &mut sealed_log_in);
-    // let p = String::from("data.sealed");
-    // save_sealed_data(&p, &sealed_log_in);
-
-    // println!("{:?}", userData);
-
+    // Seal the data and store it on disk
+    let mut sealed_log_in = [0u8; SEAL_LOG_SIZE];
+    create_sealeddata_for_serializable(&userData, &mut sealed_log_in);
     let p = String::from("data.sealed");
+    save_sealed_data(&p, &sealed_log_in);
 
+
+    // Retrieve sealed data
+    let p = String::from("data.sealed");
     let mut sealed_log_out: [u8; SEAL_LOG_SIZE] = [0; SEAL_LOG_SIZE];
     load_sealed_data(&p, &mut sealed_log_out);
-    // unseal data
-    // let unsealed_data = SecretKeyStorage::unseal_key(&mut sealed_log_out).unwrap();
-    // let unsealed_data = unsealeddata_for_serializable(&mut sealed_log_out)?;
 
     let sealed_log = sealed_log_out.as_mut_ptr();
-    verify_sealeddata_for_serializable(sealed_log, SEAL_LOG_SIZE as u32);
-
-    // println!("{:?}", unsealed_data);
-
+    let data = recover_sealeddata_for_serializable(sealed_log, SEAL_LOG_SIZE as u32)?;
+    println!("{:?}", data);
 
     Ok(())
+}
+
+pub fn find_match_internal(
+    encryptedUserId: &[u8],
+    userPubKey: &PubKey,
+    dhKey: &DhKey)  -> Result<Vec<u8>, EnclaveError> {
+
+    // Decrypt inputs using dhKey
+    let decrypted_userid = decrypt_userid(encryptedUserId, dhKey)?;
+
+    // TODO: Should not panic, propagate error instead
+    let userid = match str::from_utf8(&decrypted_userid) {
+        Ok(v) => v,
+        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+    };
+
+    // Retrieve sealed data
+    let p = String::from("data.sealed");
+    let mut sealed_log_out: [u8; SEAL_LOG_SIZE] = [0; SEAL_LOG_SIZE];
+    load_sealed_data(&p, &mut sealed_log_out);
+
+    let sealed_log = sealed_log_out.as_mut_ptr();
+    let data = recover_sealeddata_for_serializable(sealed_log, SEAL_LOG_SIZE as u32)?;
+    println!("{:?}", data.locations);
+
+    let mut results = data.iter().filter(|item| item.user_id != userid).filter(|item| item.lat > 0 ).collect();
+
+    let mut buf = Vec::new();
+    //let val = serde_json::to_value(data.locations).map_err(|_| Error::SerializeError)?;
+    let val = json!([]);
+    val.serialize(&mut Serializer::new(&mut buf)).map_err(|_| Error::SerializeError)?;
+
+    Ok(buf)
 }

@@ -112,7 +112,9 @@ pub enum EnclaveError {
         used_gas: u64,
         err: FailedTaskError
     },
-    SystemError(EnclaveSystemError)
+    SystemError(EnclaveSystemError),
+    BadUserId,
+    UnsealError
 }
 
 impl ::std::fmt::Display for EnclaveError {
@@ -245,7 +247,8 @@ impl Into<EnclaveReturn> for EnclaveError {
                     // KeyProvisionError { .. } => EnclaveReturn::KeyProvisionError,
                  }
 
-             }
+            },
+            BadUserId
         }
     }
 }
