@@ -22,6 +22,8 @@ enclave {
     from "sgx_tstdc.edl" import *;
     from "sgx_fs.edl" import *;
 
+    include "sgx_key_exchange.h"
+    include "enigma-types.h"
 
     trusted {
         /* define ECALLs here. */
@@ -39,6 +41,20 @@ enclave {
             [in] uint8_t pubkey[64],
             [out] uint64_t* serialized_ptr
         );
+
+        public sgx_status_t ecall_get_registration_quote(
+            [in] const sgx_target_info_t * target_info ,
+            [out]  sgx_report_t * report
+        );
+
+        public void ecall_get_signing_address([out] uint8_t arr[20]);
+
+        public sgx_status_t ecall_find_match(
+            [in, size=encryptedUserId_len] const uint8_t* encryptedUserId,
+            size_t encryptedUserId_len,
+            [in] uint8_t user_key[64],
+            [out] uint64_t* serialized_ptr);
+
     };
     untrusted {
         uint64_t ocall_save_to_memory([in, count=data_len] const uint8_t* data_ptr, size_t data_len);

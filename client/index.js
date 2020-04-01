@@ -4,6 +4,7 @@ const EthCrypto = require('eth-crypto');
 const jaysonBrowserClient = require('jayson/lib/client/browser');
 const enigma = require('enigma-js/lib/enigma-js.node');
 const web3utils = require('web3-utils');
+const data = require('./data.js');
 
 
 const JSON_RPC_Server='http://localhost:8080';
@@ -47,45 +48,53 @@ function getClientKeys(seed='') {
   return {privateKey, publicKey};
 }
 
-async function add_data(userId, data){
+async function getEncryptionKey(publicKey) {
+  const getEncryptionKeyResult = await new Promise((resolve, reject) => {
+    client.request('newTaskEncryptionKey', {userPubKey: publicKey},
+        (err, response) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(response);
+        });
+    });
+
+  const {result, id} = getEncryptionKeyResult;
+  const {taskPubKey, sig} = result;
+  // ToDo: verify signature
+  return taskPubKey;
+}
+
+function encrypt(taskPubKey, privateKey, variable){
+    // Generate derived key from enclave public encryption key and user's private key
+    const derivedKey = enigma.utils.getDerivedKey(taskPubKey, privateKey);
+    // Encrypt function and ABI-encoded args
+    return enigma.utils.encryptMessage(derivedKey, variable);
+}
+
+function decrypt(taskPubKey, privateKey, enc_variable){
+    // Generate derived key from enclave public encryption key and user's private key
+    const derivedKey = enigma.utils.getDerivedKey(taskPubKey, privateKey);
+    // Decrypt function and ABI-encoded args
+    let outputHex = enigma.utils.decryptMessage(derivedKey, enc_variable);
+    let outputStr = enigma.utils.hexToAscii(outputHex);
+    return JSON.parse(outputStr);
+}
+
+
+async function addData(userId, data){
 
   let {publicKey, privateKey} = getClientKeys();
 
-  console.log(publicKey)
-
   try {
-    const getWorkerEncryptionKeyResult = await new Promise((resolve, reject) => {
-      client.request('newTaskEncryptionKey', {userPubKey: publicKey},
-          (err, response) => {
-            if (err) {
-              reject(err);
-              return;
-            }
-            resolve(response);
-          });
-      });
-
-    const {result, id} = getWorkerEncryptionKeyResult;
-    const {taskPubKey, sig} = result;
-    // ToDo: verify signature
-
-    // Generate derived key from worker's encryption key and user's private key
-    const derivedKey = enigma.utils.getDerivedKey(taskPubKey, privateKey);
-    // Encrypt function and ABI-encoded args
-    const encryptedUserId = enigma.utils.encryptMessage(derivedKey, userId);
-    const encryptedData = enigma.utils.encryptMessage(derivedKey, data);
-    const msg = web3utils.soliditySha3(
-      {t: 'bytes', v: encryptedUserId},
-      {t: 'bytes', v: encryptedData},
-    );
-
-    // const a = getClientKeys();
-
-    // console.log(a.publicKey);
+    let taskPubKey = await getEncryptionKey(publicKey);
+    let encryptedUserId = encrypt(taskPubKey, privateKey, userId);
+    let encryptedData = encrypt(taskPubKey, privateKey, data);
 
     const addPersonalDataResult = await new Promise((resolve, reject) => {
       client.request('addPersonalData', {
-        encryptedUserId: encryptedUserId, 
+        encryptedUserId: encryptedUserId,
         encryptedData: encryptedData,
         userPubKey: publicKey},
           (err, response) => {
@@ -97,26 +106,62 @@ async function add_data(userId, data){
           });
       });
 
-    const {addPersonalData} = addPersonalDataResult;
+      const {addPersonalData} = addPersonalDataResult;
 
-    if(addPersonalData.status == 0) {
-      console.log('Personal data added successfully to the enclave.');
+      if(addPersonalData.status == 0) {
+        console.log('Personal data added successfully to the enclave.');
+      } else {
+        console.log('Something went wrong. Time to debug...')
+      }
+  } catch(err) {
+    console.log(err);
+    // Or throw an error
+  }
+}
+
+async function findMatch(userId){
+
+  let {publicKey, privateKey} = getClientKeys();
+
+  try {
+    let taskPubKey = await getEncryptionKey(publicKey);
+    let encryptedUserId = encrypt(taskPubKey, privateKey, userId);
+
+    const findMatchResult = await new Promise((resolve, reject) => {
+      client.request('findMatch', {
+        encryptedUserId: encryptedUserId, 
+        userPubKey: publicKey},
+          (err, response) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+            resolve(response);
+          });
+      });
+
+    if(findMatchResult.findMatch.status == 0) {
+      console.log('Find Match operation successful');
+
+      let output = decrypt(taskPubKey, privateKey, findMatchResult.findMatch.encryptedOutput);
+
+      if(output.length){
+        console.log('Find matches:');
+        console.log(output);
+      } else {
+        console.log('No matches');
+      }
     } else {
       console.log('Something went wrong. Time to debug...')
     }
-    
-
   } catch(err) {
-      console.log(err);
-      // Or Throw an error
+    console.log(err);
+    // Or throw an error
   }
-
 }
 
-add_data('myUserId', 'myDataString')
 
+addData('user1', JSON.stringify(data.DataUser1));
+addData('user2', JSON.stringify(data.DataUser2));
 
-
-let seed = '';
-
-
+findMatch('user1');
