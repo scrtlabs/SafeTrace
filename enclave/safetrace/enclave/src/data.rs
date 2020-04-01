@@ -19,10 +19,10 @@ use std::io::{Read, Write, self};
 use sgx_types::{sgx_status_t, sgx_sealed_data_t};
 
 pub const DATAFILE: &str = "data.sealed";
-pub const TOVERLAP: i32 = 300;           // 5min * 60s minimum overlap
-pub const DISTANCE: f64 = 10.0;          // in meters
-pub const EARTH_RADIUS: f64 = 6371000.0; // in meters
-pub const SEAL_LOG_SIZE: usize = 0x100000;   // Maximum data can seal in bytes
+pub const TOVERLAP: i32 = 300;             // 5min * 60s minimum overlap
+pub const DISTANCE: f64 = 10.0;            // in meters
+pub const EARTH_RADIUS: f64 = 6371000.0;   // in meters
+pub const SEAL_LOG_SIZE: usize = 4096; // Maximum data can seal in bytes -> match 
 
 
 pub enum Error {
@@ -47,6 +47,7 @@ pub struct GeolocationTime {
     lng: f64,
     startTS: i32,
     endTS: i32,
+    testResult: bool
 }
 
 pub fn decrypt_userid(userid: &[u8], key: &DhKey) -> Result<Vec<u8>, EnclaveError> {
@@ -233,21 +234,23 @@ pub fn find_match_internal(
         if key != &userid {
             for d in data[userid].clone() {
                 for e in val.iter() {
-                    // It's easier to find overlaps in time because it's a direct comparison of integers
-                    // so handle this first:
-                    // Both time intervals have to be larger than the minumum time overlap TOVERLAP
-                    // and both start times + TOVERLAP have to be smaller than the other end times
-                    if d.endTS - d.startTS > TOVERLAP &&
-                       e.endTS - e.startTS > TOVERLAP &&
-                       d.startTS + TOVERLAP < e.endTS && e.startTS + TOVERLAP < d.endTS {
-                        // We start comparing distance between latitudes. Each degree of lat is aprox
-                        // 111 kms (range varies between 110.567 km at the equator to 111.699 km at the poles)
-                        // The distance between two locations will be equal or larger than the distance between 
-                        // their latitudes (or the distance between lats will be smaller than the distance * cos(45))
-                        if (e.lat - d.lat).abs() * 111000.0 <  DISTANCE * 0.71 {
-                            // then we can run a more computationally expensive and precise comparison
-                            if (e.lat.sin()*d.lat.sin()+e.lat.cos()*d.lat.cos()*(e.lng-d.lng).cos()).acos() * EARTH_RADIUS < DISTANCE {
-                                results.push(e);
+                    if e.testResult {
+                        // It's easier to find overlaps in time because it's a direct comparison of integers
+                        // so handle this first:
+                        // Both time intervals have to be larger than the minumum time overlap TOVERLAP
+                        // and both start times + TOVERLAP have to be smaller than the other end times
+                        if d.endTS - d.startTS > TOVERLAP &&
+                           e.endTS - e.startTS > TOVERLAP &&
+                           d.startTS + TOVERLAP < e.endTS && e.startTS + TOVERLAP < d.endTS {
+                            // We start comparing distance between latitudes. Each degree of lat is aprox
+                            // 111 kms (range varies between 110.567 km at the equator to 111.699 km at the poles)
+                            // The distance between two locations will be equal or larger than the distance between 
+                            // their latitudes (or the distance between lats will be smaller than the distance * cos(45))
+                            if (e.lat - d.lat).abs() * 111000.0 <  DISTANCE * 0.71 {
+                                // then we can run a more computationally expensive and precise comparison
+                                if (e.lat.sin()*d.lat.sin()+e.lat.cos()*d.lat.cos()*(e.lng-d.lng).cos()).acos() * EARTH_RADIUS < DISTANCE {
+                                    results.push(e);
+                                }
                             }
                         }
                     }
