@@ -117,3 +117,6 @@ fabric.properties
 
 /target
 **/*.rs.bk
+
+# exclude docker mongdb data
+backend/data/
