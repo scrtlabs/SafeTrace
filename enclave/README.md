@@ -24,13 +24,13 @@ This folder contains the code that runs inside the enclave using Intel Secure Gu
 	git clone git@github.com:enigmampc/covid-self-reporting.git
 	```
 
-2. Install the SGX driver and SDK, as per these [instructions](https://github.com/enigmampc/EnigmaBlockchain/blob/master/docs/dev/setup-sgx.md).
+2. Install the SGX driver and SDK, as per the [INSTALL](INSTALL.md) instructions.
 
 
 3. Move into the `enclave/safetrace` subfolder:
 
     ```bash
-    cd enclave/safetrac
+    cd enclave/safetrace
     ```
 
 4. Compile the code:
