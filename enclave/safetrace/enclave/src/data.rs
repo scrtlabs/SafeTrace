@@ -251,8 +251,8 @@ pub fn find_match_internal(
                             // https://stackoverflow.com/questions/5031268/algorithm-to-find-all-latitude-longitude-locations-within-a-certain-distance-fro
                                
                                if (e.lat - d.lat).abs() * 111000.0 <  DISTANCE * 0.71 {
-                                   let r = Rng::new(gsl_rng_taus);
-                                   let lapnoise = rgsl::randist::laplace::laplace(r, 0.87).abs()*2.0;
+                                   let mut r = Rng::new(gsl_rng_taus);
+                                   let lapnoise = rgsl::randist::laplace::laplace(&mut r, 0.87).abs()*2.0;
                                 // then we can run a more computationally expensive and precise comparison
                                 if (e.lat.sin()*d.lat.sin()+e.lat.cos()*d.lat.cos()*(e.lng-d.lng).cos()).acos() * EARTH_RADIUS - lapnoise < DISTANCE {
                                     results.push(d.clone());
