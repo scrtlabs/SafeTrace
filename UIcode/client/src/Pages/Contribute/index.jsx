@@ -1,59 +1,52 @@
 import React from "react";
-import RadioGroup from "Components/RadioGroup";
 import { useState } from "react";
-import DatePicker from "Components/DatePicker";
 import styled from "styled-components";
 import Button from "Components/Common/Button";
 import Row from "Components/Grid/Row";
+import Step1 from "./Step1";
+import Step2 from "./Step2";
 
-const Box = styled.div`
-  width: 500px;
+const Wrapper = styled.div`
+  padding-top: 50px;
 `;
-const Contribute = () => {
-  const [selected, setSelected] = useState("positive");
-  const [date, setDate] = useState(new Date());
 
-  const handleDayChange = day => {
-    setDate(day);
-  };
+const Contribute = () => {
+  const [step, setStep] = useState(0);
+  const [selectedTestResult, setSelectedTestResult] = useState("positive");
+  const [testDate, setTestDate] = useState(new Date());
+
+  const showButtons = step !== 0;
+
+  const handleNextClick = () => setStep(step => step + 1);
+  const handleBackClick = () => setStep(step => step - 1);
+
+  const steps = [
+    () => <Step1 submitReport={handleNextClick} viewResults={() => {}} />,
+    () => (
+      <Step2
+        selectedTestResult={selectedTestResult}
+        onTestResultChange={setSelectedTestResult}
+        testDate={testDate}
+        onTestDateChange={setTestDate}
+      />
+    )
+  ];
+  const CurrentStep = steps[step];
 
   return (
-    <div>
-      <h2>Self Report</h2>
-      <hr />
-      <Box>
-        <h3>Do you have test results for COVID-19?</h3>
-        <p>
-          All data is private and anonymous. You can still report your data to
-          this map if you haven’t taken a test, and update test results later.{" "}
-        </p>
-        <RadioGroup selected={selected} onChange={setSelected}>
-          {[
-            {
-              label: "Positive",
-              value: "positive"
-            },
-            {
-              label: "Negative",
-              value: "negative"
-            },
-            {
-              label: "I have not been tested",
-              value: "not_tested"
-            }
-          ]}
-        </RadioGroup>
-      </Box>
-      <hr />
-      <Box>
-        <h2>What date was the test administered?</h2>
-        <DatePicker selectedDay={date} onDayChange={handleDayChange} />
-      </Box>
-      <Row>
-        <Button color="secondary">Back</Button>
-        <Button color="primary">Next</Button>
-      </Row>
-    </div>
+    <Wrapper>
+      <CurrentStep />
+      {showButtons && (
+        <Row>
+          <Button color="secondary" onClick={handleBackClick}>
+            Back
+          </Button>
+          <Button color="primary" onClick={handleNextClick}>
+            Next
+          </Button>
+        </Row>
+      )}
+    </Wrapper>
   );
 };
 

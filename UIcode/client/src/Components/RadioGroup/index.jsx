@@ -1,35 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import colors from "Theme/colors";
-
-const RadioList = styled.ul`
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-`;
-const RadioListItem = styled.li`
-  margin: 10px 0;
-`;
-
-const RadioButton = styled.button`
-  display: flex;
-  align-items: center;
-  border: 1px solid
-  ${props => (props.selected ? colors.primary.main : colors.grey.light)};
-    height: 60px;
-    width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    background: none;
-    cursor: pointer;
-    transition .5s;
-    &:active,
-    &:focus {
-      outline: none;
-    }
-  `;
+import ListItemButton from "Styled/ListItemButton";
+import Ul from "Styled/Ul";
+import Li from "Styled/Li";
 
 const CheckBox = styled.div`
     border-radius: 50%;
@@ -58,19 +32,19 @@ const CheckBox = styled.div`
 const RadioGroup = ({ children, selected, onChange }) => {
   const handleRadioButtonClick = value => () => onChange(value);
   return (
-    <RadioList>
+    <Ul>
       {children.map(({ label, value }) => (
-        <RadioListItem key={value}>
-          <RadioButton
+        <Li key={value}>
+          <ListItemButton
             onClick={handleRadioButtonClick(value)}
             selected={value === selected}
           >
             <CheckBox selected={value === selected} />
             {label}
-          </RadioButton>
-        </RadioListItem>
+          </ListItemButton>
+        </Li>
       ))}
-    </RadioList>
+    </Ul>
   );
 };
 

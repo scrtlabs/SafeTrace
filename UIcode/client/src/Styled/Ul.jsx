@@ -1,8 +1,9 @@
 import styled from "styled-components";
 
-const Col = styled.div`
+export default styled.ul`
+  list-style: none;
   display: flex;
   flex-direction: column;
+  margin: 0;
+  padding: 0;
 `;
-
-export default Col;
