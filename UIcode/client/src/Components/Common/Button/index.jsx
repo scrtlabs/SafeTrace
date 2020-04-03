@@ -36,7 +36,6 @@ const StyledButton = styled.button`
   box-sizing: content-box;
   cursor: pointer;
   font-weight: bold;
-  margin: 0 9px;
 
   ${props => colorStyles[props.color]}
 `;

@@ -10,6 +10,16 @@ npm install
 cd client
 npm install
 
+# Create .env.development file as follows
+touch .env.development
+
+# set API url i.e. http://localhost:4080
+echo "REACT_APP_API_URL=http://localhost:4080" >> .env.development
+
+#set google client id i.e. 119469794689-hhq7rpcmd88c7r5gkiom0u2pakfka3cd.apps.googleusercontent.com
+echo "REACT_APP_GOOGLE_CLIENT_ID=119469794689-hhq7rpcmd88c7r5gkiom0u2pakfka3cd.apps.googleusercontent.com" >> .env.development
+
 # Serve on localhost:3000
-npm run dev
+cd client
+npm start
 ```

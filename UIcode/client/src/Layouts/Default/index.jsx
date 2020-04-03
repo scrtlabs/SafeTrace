@@ -2,9 +2,15 @@ import React from "react";
 import { Route } from "react-router-dom";
 import Header from "Components/Header";
 import styled from "styled-components";
+import Hr from "Components/Grid/Hr";
 
 const Wrapper = styled.div``;
 
+const PageContent = styled.div`
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+`;
 const DefaultLayout = props => {
   const { component: Component, ...restProps } = props;
 
@@ -12,9 +18,12 @@ const DefaultLayout = props => {
     <Route
       {...restProps}
       render={matchProps => (
-        <Wrapper className="container mt-4">
+        <Wrapper>
           <Header />
-          <Component {...matchProps} />
+          <Hr />
+          <PageContent>
+            <Component {...matchProps} />
+          </PageContent>
         </Wrapper>
       )}
     />

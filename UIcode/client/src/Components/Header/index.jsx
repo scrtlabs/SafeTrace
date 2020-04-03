@@ -6,18 +6,15 @@ import LoginLogoutButton from "Components/LoginLogoutButton";
 
 const HeaderWrapper = styled.header`
   width: 100%;
+  max-width: 1140px;
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px #dee2e6 solid;
-  margin: 20px 0;
-  padding: 0 30px;
+  margin: 20px auto 0;
+  padding: 0;
 `;
 
 const StyledNavBar = styled.nav`
   display: flex;
-  padding: 0 15px;
-  padding-left: 15px;
-  margin: 0;
   width: 100%;
   justify-content: space-between;
 `;
@@ -25,10 +22,12 @@ const StyledNavBar = styled.nav`
 const NavUl = styled.ul`
   display: flex;
   align-items: stretch;
+  justify-content: space-between;
   list-style: none;
   margin: 0;
   padding: 0;
   height: 40px;
+  flex: 1;
 `;
 
 const Title = styled.h1`
@@ -39,13 +38,14 @@ const Title = styled.h1`
   font-weight: 600;
   padding: 0;
   margin: 0;
+  flex: 2;
 `;
 
 const StyledNavLink = styled(NavLink)`
   ${NavLinkStyle}
 `;
 
-const Header = () => {
+const Header = ({ className }) => {
   return (
     <HeaderWrapper>
       <StyledNavBar>

@@ -14,7 +14,8 @@ const LoginLogoutButton = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!token);
 
   const loginSuccess = response => {
-    Cookies.set("token", response.id_token);
+    Cookies.set("token", response.tokenId);
+    console.log(response)
     setIsLoggedIn(true);
   };
 

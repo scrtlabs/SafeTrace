@@ -5,9 +5,11 @@
   "dependencies": {
     "axios": "^0.18.1",
     "bootstrap": "^4.4.1",
+    "date-fns": "^2.11.1",
     "js-cookie": "^2.2.1",
     "react": "^16.8.6",
     "react-bootstrap": "^1.0.0",
+    "react-day-picker": "^7.4.0",
     "react-dom": "^16.8.6",
     "react-google-login": "^5.1.2",
     "react-router": "^5.1.2",

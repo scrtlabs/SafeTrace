@@ -6,7 +6,6 @@ export default css`
   color: rgba(0, 0, 0, 0.9);
   font-weight: 400;
   display: inline-block;
-  min-width: 100px;
   text-align: center;
   height: 100%;
   background: none;
