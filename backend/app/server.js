@@ -3,6 +3,8 @@ const http = require('http');
 const fs = require('fs');
 const app = express();
 const mongoose = require('mongoose');
+const {OAuth2Client} = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 var cors = require('cors');
 
@@ -25,7 +27,8 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.get('/', (req, res) => {
-    res.send("SafeTrace backend API")
+    //res.send("SafeTrace backend API")
+    res.sendFile('/home/cristian/Documents/Altoros/Protofire/projects/SafeTrace/backend/app/google.html');
 }
 );
 

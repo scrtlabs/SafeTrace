@@ -1,5 +1,5 @@
 {
-  "name": "APIServerUsers",
+  "name": "api-server-users",
   "version": "0.0.1",
   "description": "Backend API server for managing user data",
   "main": "server.js",
@@ -17,6 +17,7 @@
     "dotenv": "^8.1.0",
     "express": "^4.17.1",
     "express-validator": "^6.4.0",
+    "google-auth-library": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.4",
     "mongoose-easy-auto-increment": "^1.0.1"
