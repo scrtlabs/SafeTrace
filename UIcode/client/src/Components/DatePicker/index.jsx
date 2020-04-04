@@ -20,21 +20,22 @@ const parseDate = (str, format, locale) => {
   return undefined;
 };
 
-const DatePicker = ({ className, ...props }) => (
+const DatePicker = ({ className, disabled, ...props }) => (
   <DayPickerInput
     {...props}
     classNames={{ container: className, overlay: "" }}
     format={DATE_FORMAT}
     parseDate={parseDate}
     formatDate={formatDate}
+    inputProps={{ disabled }}
     placeholder="MM/DD/YYYY"
     dayPickerProps={{
       fromMonth: new Date(2019, 11, 1),
       toMonth: new Date(),
       disabledDays: {
         before: new Date(2019, 11, 1),
-        after: new Date()
-      }
+        after: new Date(),
+      },
     }}
   />
 );

@@ -4,8 +4,10 @@ import colors from "Theme/colors";
 export default styled.button`
   display: flex;
   align-items: center;
-  border: 1px solid
+  border: 1px solid 
   ${props => (props.selected ? colors.primary.main : colors.grey.light)};
+  transition: .5s;
+
     height: 60px;
     width: 100%;
     padding: 10px;

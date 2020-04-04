@@ -5,16 +5,19 @@ import DefaultLayout from "Layouts/Default";
 import Home from "Pages/Home";
 import API from "Pages/API";
 import Contribute from "Pages/Contribute";
+import AuthProvider from "Providers/AuthProvider";
 
 const App = () => {
   return (
-    <Router>
-      <Switch>
-        <DefaultLayout exact path="/" component={Home} />
-        <DefaultLayout exact path="/API" component={API} />
-        <DefaultLayout exact path="/contribute" component={Contribute} />
-      </Switch>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Switch>
+          <DefaultLayout exact path="/" component={Home} />
+          <DefaultLayout exact path="/API" component={API} />
+          <DefaultLayout exact path="/contribute" component={Contribute} />
+        </Switch>
+      </Router>
+    </AuthProvider>
   );
 };
 

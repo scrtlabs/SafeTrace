@@ -10,18 +10,27 @@ export default css`
   height: 100%;
   background: none;
   border: none;
-  padding: 0;
+  padding: 0 2px;
   text-decoration: none;
   cursor: pointer;
   outline: none;
+  transition: 0.5s;
 
   &:hover {
     text-decoration: none;
-    color: blue;
+    color: rgba(0, 0, 0, 0.9);
   }
 
-  &.active {
-    color: ${colors.secondary.main};
+  &:not(.active):not(active):hover,
+  &:not(.active):not(active):focus {
+    color: ${colors.primary.main};
+    outline: none;
+  }
+
+  &.active,
+  &:active {
+    text-shadow: 1px 0 0 rgba(0, 0, 0, 0.9);
     border-bottom: 2px solid blue;
+    outline: none;
   }
 `;

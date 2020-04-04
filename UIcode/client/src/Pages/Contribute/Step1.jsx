@@ -1,13 +1,8 @@
 import React from "react";
-import styled from "styled-components";
-import Col from "Components/Grid/Col";
 import ListItemButton from "Styled/ListItemButton";
 import Ul from "Styled/Ul";
 import Li from "Styled/Li";
-
-const Box = styled.div`
-  width: 500px;
-`;
+import Box from "Styled/Box";
 
 const Step1 = ({ submitReport, viewResults }) => {
   return (

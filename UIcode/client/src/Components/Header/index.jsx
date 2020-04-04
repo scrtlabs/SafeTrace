@@ -22,12 +22,24 @@ const StyledNavBar = styled.nav`
 const NavUl = styled.ul`
   display: flex;
   align-items: stretch;
-  justify-content: space-between;
+  justify-content: ${(props) =>
+    props.align === "right" ? `flex-end` : `space-between`};
   list-style: none;
   margin: 0;
   padding: 0;
   height: 40px;
-  flex: 1;
+`;
+
+const NavLi = styled.li`
+  &:not(:first-child):not(:last-child):not(:only-child) {
+    margin: 0 32px;
+  }
+  :first-child:not(:only-child) {
+    margin-right: 32px;
+  }
+  :last-child:not(:only-child) {
+    margin-left: 32px;
+  }
 `;
 
 const Title = styled.h1`
@@ -38,7 +50,6 @@ const Title = styled.h1`
   font-weight: 600;
   padding: 0;
   margin: 0;
-  flex: 2;
 `;
 
 const StyledNavLink = styled(NavLink)`
@@ -50,27 +61,27 @@ const Header = ({ className }) => {
     <HeaderWrapper>
       <StyledNavBar>
         <NavUl>
-          <li>
+          <NavLi>
             <StyledNavLink to="/" exact>
               Home
             </StyledNavLink>
-          </li>
-          <li>
+          </NavLi>
+          <NavLi>
             <StyledNavLink to="/API" exact>
               API
             </StyledNavLink>
-          </li>
-          <li>
+          </NavLi>
+          <NavLi>
             <StyledNavLink to="/contribute">Contribute</StyledNavLink>
-          </li>
+          </NavLi>
         </NavUl>
 
         <Title>Covid-19 Safe Trace</Title>
 
-        <NavUl>
-          <li>
+        <NavUl align="right">
+          <NavLi>
             <LoginLogoutButton />
-          </li>
+          </NavLi>
         </NavUl>
       </StyledNavBar>
     </HeaderWrapper>
