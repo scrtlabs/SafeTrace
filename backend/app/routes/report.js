@@ -3,7 +3,7 @@ const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
-const auth = require("../middleware/auth-general");
+const auth = require("../middleware/auth");
 const {OAuth2Client} = require('google-auth-library');
 
 const Report = require("../models/report");
@@ -21,7 +21,14 @@ const Report = require("../models/report");
 
 router.post(
     "/",
-    auth,
+    [
+        auth,
+        check("idUser", "Please Enter a Valid Username")
+            .not()
+            .isEmpty(),
+        check("testDate", "Please enter a valid email").isString(),
+        check("testResult", "Please enter a valid password").isNumeric()
+    ],
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

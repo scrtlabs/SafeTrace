@@ -246,16 +246,30 @@ router.post(
                         id: user.id
                     }
                 };
-            
-                return res.status(200).json({
-                    message: "User added and logged in"
-                });
 
-            }else{
-                return res.status(200).json({
-                    message: "User is logged in"
-                });
+
             }
+            
+            const payload2 = {
+                user: {
+                    id: user.id
+                }
+            };
+
+            jwt.sign(
+                payload2,
+                config.secret,
+                {
+                    expiresIn: 3600  //1 hour without activity
+                },
+                (err, token) => {
+                    if (err) throw err;
+                    res.status(200).json({
+                        token
+                    });
+                }
+            );
+                           
             
         } catch (e) {
             console.error(e);
@@ -286,41 +300,5 @@ router.get("/me", auth, async (req, res) => {
     }
 });
 
-/**
-* @method - GET
-* @description - Get Google LoggedIn User
-* @param 
-* @header token (google token)
-*/
-
-router.get("/gme",[] ,async (req, res) => {
-    const token = req.header("token");
-    if (!token) return res.status(401).json({ message: "Auth Error" });
-
-    try {
-        const params = {
-            idToken: token,
-            audience: process.env.GOOGLE_CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
-        }
-        
-        const ticket = await client.verifyIdToken(params);           
-        const payload = ticket.getPayload();
-        const email = payload['email'];
-        const user = await User.findOne({
-            email
-        });
-        if (!user)
-            return res.status(400).json({
-                message: "User Not Exist"
-            });
-        user.password  = '---';
-        res.json(user);
-        console.log('payload', payload);
-    } catch (e) {
-        console.error(e);
-        res.status(500).send({ message: "Invalid Token" });
-    }
-    
-});
 
 module.exports = router;
