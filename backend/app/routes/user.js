@@ -279,6 +279,7 @@ router.get("/me", auth, async (req, res) => {
     try {
         // request.user is getting fetched from Middleware after token authentication
         const user = await User.findById(req.user.id);
+        user.password  = '---';
         res.json(user);
     } catch (e) {
         res.send({ message: "Error in Fetching user" });
@@ -309,6 +310,11 @@ router.get("/gme",[] ,async (req, res) => {
         const user = await User.findOne({
             email
         });
+        if (!user)
+            return res.status(400).json({
+                message: "User Not Exist"
+            });
+        user.password  = '---';
         res.json(user);
         console.log('payload', payload);
     } catch (e) {
