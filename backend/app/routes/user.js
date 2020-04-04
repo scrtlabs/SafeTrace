@@ -10,7 +10,7 @@ const config = require('../config/config.js');
 const crypto = require('../helpers/crypto');
 
 const User = require("../models/user");
-const Report = require("../models/report");
+
 
 /**
  * @method - POST
@@ -302,9 +302,8 @@ router.get("/gme",[] ,async (req, res) => {
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
         }
-        console.log(params);
-        const ticket = await client.verifyIdToken(params);
-            
+        
+        const ticket = await client.verifyIdToken(params);           
         const payload = ticket.getPayload();
         const email = payload['email'];
         const user = await User.findOne({

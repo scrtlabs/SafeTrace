@@ -10,6 +10,7 @@ var cors = require('cors');
 
 const bodyParser = require("body-parser");
 const user = require("./routes/user");
+const report = require("./routes/report");
 
 require('dotenv').config({ path: '.env' })
 
@@ -38,6 +39,7 @@ app.get('/', (req, res) => {
  * Method - *
  */
 app.use("/user", user);
+app.use("/report", report);
 
 console.log(process.env.PORT);
 
