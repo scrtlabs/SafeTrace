@@ -2,6 +2,13 @@
 
 This folder contains the code that runs inside the enclave using Intel Secure Guard Extensions (SGX). It builds on [Apache's Teaclave](https://github.com/apache/incubator-teaclave), and more specifically its [Rust SGX SDK](https://github.com/apache/incubator-teaclave-sgx-sdk) which is included as part of this repo as a submodule (branch = `v1.1.1-testing`).
 
+## Demo
+
+There is a [10min video demo](https://youtu.be/cyOuAMCQRlw) of Safetrace working end-to-end. As of the making of this demo, there is no UI, so everything is demoed through the console. Please note that the enclave is verbose from demoing purposes, but the production version will not output any secrets.
+
+![](../docs/videodemo_screenshot.png)
+
+
 ## Requirements
 
 * SGX-capable computer host with SGX enabled in the BIOS
