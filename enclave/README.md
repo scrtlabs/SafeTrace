@@ -6,6 +6,8 @@ This folder contains the code that runs inside the enclave using Intel Secure Gu
 
 There is a [10min video demo](https://youtu.be/cyOuAMCQRlw) of Safetrace working end-to-end. As of the making of this demo, there is no UI, so everything is demoed through the console. Please note that the enclave is verbose from demoing purposes, but the production version will not output any secrets.
 
+![](../docs/videodemo_screenshot.png)
+
 
 ## Requirements
 
