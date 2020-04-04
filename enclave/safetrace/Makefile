@@ -21,8 +21,6 @@
 SGX_SDK ?= $(HOME)/.sgxsdk/sgxsdk
 
 # The path to the incubator-teaclave-sgx-sdk code.
-# SGX_SDK_RUST ?= ../incubator-teaclave-sgx-sdk/
-
 SGX_SDK_RUST ?= $(HOME)/sgx
 
 

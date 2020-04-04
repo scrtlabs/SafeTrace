@@ -22,7 +22,7 @@ pub const DATAFILE: &str = "data.sealed";
 pub const TOVERLAP: i32 = 300;             // 5min * 60s minimum overlap
 pub const DISTANCE: f64 = 10.0;            // in meters
 pub const EARTH_RADIUS: f64 = 6371000.0;   // in meters
-pub const SEAL_LOG_SIZE: usize = 4096; // Maximum data can seal in bytes -> match 
+pub const SEAL_LOG_SIZE: usize = 4096;     // Maximum data can seal in bytes -> smaller than "HeapMaxSize" in Enclave.config.xml
 
 
 pub enum Error {

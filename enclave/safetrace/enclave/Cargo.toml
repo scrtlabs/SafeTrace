@@ -18,12 +18,9 @@ enigma-tools-t = { git = "https://github.com/enigmampc/enigma-core.git", branch=
 enigma-tools-m = { git = "https://github.com/enigmampc/enigma-core.git", branch="develop", default-features = false, features = ["sgx"] }
 enigma-runtime-t = { git = "https://github.com/enigmampc/enigma-core.git", branch="develop" }
 
-# rustc-hex = { version = "2.0", default-features = false }
 serde = { git = "https://github.com/mesalock-linux/serde-sgx.git", rev = "sgx_1.0.9", features=["serde_derive"] }
 serde_json = { git = "https://github.com/enigmampc/serde-json-sgx.git", rev = "1.0.39-sgx-1.0.9" }
 rmp-serde = {git = "https://github.com/enigmampc/msgpack-rust.git", rev =  "0.14.0-sgx-1.0.9" }
-
-# serde_cbor = { git = "https://github.com/mesalock-linux/cbor-sgx.git", rev = "sgx_1.0.9", default-features = false, features=["mesalock_sgx"] }
 lazy_static = {version = "1.4.0", features = ["spin_no_std"] }
 
 sgx_types = { git = "https://github.com/baidu/rust-sgx-sdk.git", rev = "v1.0.9" }
