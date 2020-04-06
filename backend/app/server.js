@@ -28,10 +28,8 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.get('/', (req, res) => {
-    //res.send("SafeTrace backend API")
-    res.sendFile('/home/cristian/Documents/Altoros/Protofire/projects/SafeTrace/backend/app/google.html');
-}
-);
+    res.send("SafeTrace backend API")
+});
 
 /**
  * Router Middleware
@@ -39,6 +37,12 @@ app.get('/', (req, res) => {
  * Method - *
  */
 app.use("/user", user);
+
+/**
+ * Router Middleware
+ * Router - /report
+ * Method - *
+ */
 app.use("/report", report);
 
 console.log(process.env.PORT);

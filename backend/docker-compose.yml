@@ -22,15 +22,15 @@ services:
 #      - DB_HOST=mongo
 #    links:
 #      - mongo
-  # app:
-  #   container_name: apiServerUsers
-  #   #restart: always
-  #   build:
-  #     context: ./app
-  #     dockerfile: ./Dockerfile
-  #   volumes:
-  #     - ./app:/usr/src/apiServerUsers
-  #   ports:
-  #     - "4080:4080"
-  #   links:
-  #     - mongo
+  app:
+    container_name: apiServerUsers
+    #restart: always
+    build:
+      context: ./app
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./app:/usr/src/apiServerUsers
+    ports:
+      - "4080:4080"
+    links:
+      - mongo

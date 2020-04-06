@@ -8,10 +8,12 @@ You should have docker and docker-compose installed on your machine
 ## Installation 
 
 * clone the project from the repo 
-* cd -> project directory and run your project using the following command 
- ```
- $ docker-compose up --build
- ```
+* cd <your_project_folder>/backend/
+* Run this command
+    ```
+    $ docker-compose up --build
+    ```
+ 
  The node js project will run on http://localhost:4080/
  
  * admin-mongo interface will be displayed on http://localhost:8082/  
@@ -23,7 +25,10 @@ You should have docker and docker-compose installed on your machine
  * External Mongo DB connection string (Robo3t)
  `mongodb://localhost:10975/safetrace`
  
- 
+ * .env file has some configurations
+    - PORT: port where run nodejs 
+    - MONGOURI: path to access to mongoDB database (`mongodb://mongo/safetrace`)
+    - GOOGLE_CLIENT_ID= client id path to register and validate users for Google sign up service
 
 # Google Sign In integration
 
