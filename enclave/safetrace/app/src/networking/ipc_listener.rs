@@ -1,5 +1,5 @@
 use crate::networking::messages::*;
-use sgx_types::{sgx_enclave_id_t, sgx_status_t};
+use sgx_types::sgx_enclave_id_t;
 use futures::{Future, Stream};
 use std::sync::Arc;
 use tokio_zmq::prelude::*;
@@ -49,22 +49,41 @@ pub fn handle_message(request: Multipart, spid: &str, eid: sgx_enclave_id_t, ret
 pub(self) mod handling {
     use crate::networking::messages::*;
     use crate::keys_u;
+    use crate::esgx::equote;
     use failure::Error;
     use sgx_types::{sgx_enclave_id_t, sgx_status_t};
     use hex::{FromHex, ToHex};
     use std::str;
+    use rmp_serde::Deserializer;
     use serde::Deserialize;
     use serde_json::Value;
+    use enigma_tools_u::{
+        esgx::equote as equote_tools,
+        attestation_service::{service::AttestationService, constants::ATTESTATION_SERVICE_URL},
+    };
+    use enigma_types::{EnclaveReturn};
+
 
     extern {
-    fn ecall_add_personal_data(
-        eid: sgx_enclave_id_t,
-        ret: *mut sgx_status_t,
-        encryptedUserId: *const u8,
-        encryptedUserId_len: usize,
-        encryptedData: *const u8,
-        encryptedData_len: usize,
-        userPubKey: &[u8; 64]) -> sgx_status_t;
+        fn ecall_add_personal_data(
+            eid: sgx_enclave_id_t,
+            ret: *mut sgx_status_t,
+            encryptedUserId: *const u8,
+            encryptedUserId_len: usize,
+            encryptedData: *const u8,
+            encryptedData_len: usize,
+            userPubKey: &[u8; 64]) -> sgx_status_t;
+    }
+
+    extern {
+        fn ecall_find_match(
+                eid: sgx_enclave_id_t,
+                ret: *mut sgx_status_t,
+                encryptedUserId: *const u8,
+                encryptedUserId_len: usize,
+                userPubKey: &[u8; 64],
+                serialized_ptr: *mut u64
+            ) -> sgx_status_t;
     }
 
     type ResponseResult = Result<IpcResponse, Error>;
@@ -74,8 +93,31 @@ pub(self) mod handling {
         pubkey: Vec<u8>
     }
 
+    //#[logfn(TRACE)]
     pub fn get_enclave_report(eid: sgx_enclave_id_t, spid: &str, retries: u32) -> ResponseResult {
-        let result = IpcResults::EnclaveReport { spid: spid.to_string() };
+
+        let signing_key = equote::get_register_signing_address(eid)?;
+
+        let enc_quote = equote_tools::retry_quote(eid, spid, 18)?;
+        println!("{:?}", enc_quote);
+
+
+        // *Important* `option_env!()` runs on *Compile* time.
+        // This means that if you want Simulation mode you need to run `export SGX_MODE=SW` Before compiling.
+        let (signature, report_hex) = if option_env!("SGX_MODE").unwrap_or_default() == "SW" { // Simulation Mode
+            let report =  enc_quote.as_bytes().to_hex();
+            let sig = String::new();
+            (sig, report)
+        } else { // Hardware Mode
+            let service: AttestationService = AttestationService::new_with_retries(ATTESTATION_SERVICE_URL, retries);
+            let response = service.get_report(enc_quote)?;
+            let report = response.result.report_string.as_bytes().to_hex();
+            let sig = response.result.signature;
+            (sig, report)
+        };
+
+        let result = IpcResults::EnclaveReport { signing_key: signing_key.to_hex(), report: report_hex, signature };
+
         Ok(IpcResponse::GetEnclaveReport { result })
     }
 
@@ -87,41 +129,32 @@ pub(self) mod handling {
 
         let (msg, sig) = keys_u::get_user_key(eid, &user_pubkey)?;
 
-        // Enigma-core implementation used MessagePack, but rmp-serde is not available
-        // so replaced MessagePack serialization with plain JSON serialization
-        //let mut des = Deserializer::new(&msg[..]);
-        //let res: Value = Deserialize::deserialize(&mut des).unwrap();
-        //let pubkey = serde_json::from_value::<Vec<u8>>(res["pubkey"].clone())?;
-        //let pubkey = serde_json::from_slice::<Vec<u8>>(&msg)?;
-        let res = match str::from_utf8(&msg) {
-            Ok(v) => v,
-            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-        };
+        let mut des = Deserializer::new(&msg[..]);
+        let res: Value = Deserialize::deserialize(&mut des).unwrap();
+        let pubkey = serde_json::from_value::<Vec<u8>>(res["pubkey"].clone())?;
 
-        let pubkey: PubkeyResult = serde_json::from_str(res)?;
-
-        let result = IpcResults::DHKey {taskPubKey: pubkey.pubkey.to_hex(), sig: sig.to_hex() };
+        let result = IpcResults::DHKey {taskPubKey: pubkey.to_hex(), sig: sig.to_hex() };
 
         Ok(IpcResponse::NewTaskEncryptionKey { result })
     }
 
     // TODO
     //#[logfn(DEBUG)]
-    pub fn add_personal_data( input: IpcInput, eid: sgx_enclave_id_t) -> ResponseResult {
+    pub fn add_personal_data(input: IpcInputData, eid: sgx_enclave_id_t) -> ResponseResult {
 
         let mut ret = sgx_status_t::SGX_SUCCESS;
-        let encryptedUserId = input.encryptedUserId.from_hex()?;
-        let encryptedData = input.encryptedData.from_hex()?;
-        let mut userPubKey = [0u8; 64];
-        userPubKey.clone_from_slice(&input.userPubKey.from_hex()?);
+        let encrypted_userid = input.encrypted_userid.from_hex()?;
+        let encrypted_data = input.encrypted_data.from_hex()?;
+        let mut user_pub_key = [0u8; 64];
+        user_pub_key.clone_from_slice(&input.user_pub_key.from_hex()?);
 
         unsafe { ecall_add_personal_data(eid,
                                          &mut ret as *mut sgx_status_t,
-                                         encryptedUserId.as_ptr() as * const u8,
-                                         encryptedUserId.len(),
-                                         encryptedData.as_ptr() as * const u8,
-                                         encryptedData.len(),
-                                         &userPubKey) };
+                                         encrypted_userid.as_ptr() as * const u8,
+                                         encrypted_userid.len(),
+                                         encrypted_data.as_ptr() as * const u8,
+                                         encrypted_data.len(),
+                                         &user_pub_key) };
 
         let result = IpcResults::AddPersonalData { status: Status::Passed };
         Ok(IpcResponse::AddPersonalData { result })
@@ -129,8 +162,29 @@ pub(self) mod handling {
 
     // TODO
     //#[logfn(DEBUG)]
-    pub fn find_match( input: IpcInput, eid: sgx_enclave_id_t) -> ResponseResult {
-        let result = IpcResults::FindMatch { status: Status::Passed };
+    pub fn find_match( input: IpcInputMatch, eid: sgx_enclave_id_t) -> ResponseResult {
+
+        let mut ret = sgx_status_t::SGX_SUCCESS;
+        let mut serialized_ptr = 0u64;
+        let encrypted_userid = input.encrypted_userid.from_hex()?;
+        let mut user_pub_key = [0u8; 64];
+        user_pub_key.clone_from_slice(&input.user_pub_key.from_hex()?);
+
+        let status = unsafe { 
+            ecall_find_match(
+                eid,
+                &mut ret as *mut sgx_status_t,
+                encrypted_userid.as_ptr() as * const u8,
+                encrypted_userid.len(),
+                &user_pub_key,
+                &mut serialized_ptr as *mut u64
+            )
+        };
+
+        let box_ptr = serialized_ptr as *mut Box<[u8]>;
+        let part = unsafe { Box::from_raw(box_ptr) };
+
+        let result = IpcResults::FindMatch { status: Status::Passed, encryptedOutput: part.to_hex()};
         Ok(IpcResponse::FindMatch { result })
     }
 

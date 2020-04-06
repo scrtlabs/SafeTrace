@@ -1,7 +1,8 @@
 use crate::common_u::errors::EnclaveFailError;
 use failure::Error;
 use sgx_types::{sgx_enclave_id_t, sgx_status_t};
-use crate::enigma_types::types::{EnclaveReturn};
+use enigma_types::{EnclaveReturn};
+
 
 extern {
     pub fn ecall_get_user_key(

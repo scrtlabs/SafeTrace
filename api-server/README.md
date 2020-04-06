@@ -69,18 +69,20 @@ The geolocation + datetime data is to be provided in an array in JSON format as 
 		"lat": 40.757339,
 		"lng": -73.985992,
 		"startTS": 1583064000,
-		"endTS": 1583067600
+		"endTS": 1583067600,
+		"testResult": false,
 	},
 	{
 		"lat": 40.793840,
 		"lng": -73.956900,
 		"startTS": 1583150400,
-		"endTS": 1583154000
+		"endTS": 1583154000,
+		"testResult": true,
 	},
 	
 ]
 ```
-In the example above, the first datapoint is for Times Square in New York City on March 1st, 2020 from 12pm to 1pm, whereas the second data point is somewhere in Central Park the following day March 2nd, 2020 from 12pm to 1pm.
+In the example above, the first datapoint is for Times Square in New York City on March 1st, 2020 from 12pm to 1pm, whereas the second data point is somewhere in Central Park the following day March 2nd, 2020 from 12pm to 1pm. This user did not test positive for Coronavirus the first day, but he tested positive the following day.
 
 
 # Installation

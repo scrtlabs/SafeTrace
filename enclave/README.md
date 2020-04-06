@@ -2,6 +2,13 @@
 
 This folder contains the code that runs inside the enclave using Intel Secure Guard Extensions (SGX). It builds on [Apache's Teaclave](https://github.com/apache/incubator-teaclave), and more specifically its [Rust SGX SDK](https://github.com/apache/incubator-teaclave-sgx-sdk) which is included as part of this repo as a submodule (branch = `v1.1.1-testing`).
 
+## Demo
+
+There is a [10min video demo](https://youtu.be/cyOuAMCQRlw) of Safetrace working end-to-end. As of the making of this demo, there is no UI, so everything is demoed through the console. Please note that the enclave is verbose from demoing purposes, but the production version will not output any secrets.
+
+![](../docs/videodemo_screenshot.png)
+
+
 ## Requirements
 
 * SGX-capable computer host with SGX enabled in the BIOS
@@ -24,54 +31,42 @@ This folder contains the code that runs inside the enclave using Intel Secure Gu
 	git clone git@github.com:enigmampc/covid-self-reporting.git
 	```
 
-2. Move into this `enclave` subfolder:
+2. Install the SGX driver and SDK, as per the [INSTALL](INSTALL.md) instructions.
+
+
+3. Move into the `enclave/safetrace` subfolder:
 
     ```bash
-    cd enclave
+    cd enclave/safetrace
     ```
 
-3. Initialize the gitsubmodule:
+4. Compile the code:
 
     ```bash
-    cd incubator-teaclave-sgx-sdk
-    git submodule init
-    git submodule update
-    ```
-
-4. Install the SGX driver and SDK, as per these [instructions](https://github.com/enigmampc/EnigmaBlockchain/blob/master/docs/dev/setup-sgx.md).
-
-5. A sample code is temporarily included in this repo as a starting point. You can try it out:
-
-    ```bash
-    cd hello-rust
     make
+    ```
+
+5. Run the enclave code:
+
+    ```bash
     cd bin
-    ./app
+    ./safetrace-app
     ```
 
-    *Note: This code is very particular, and you need to run `./app` from inside the `bin` folder. If you try to run it from anywhere else (e.g. its parent folder, as in `./bin/app`), you will get the following error, because it expects another file in the same folder from where the command is run:* 
+## Future Work
 
-    ```bash
-    [-] Init Enclave Failed SGX_ERROR_ENCLAVE_FILE_ACCESS!`*
-    ```
+This section documents some of the limitations of the current implementation, and covers some areas of future work.
 
-    Which should print something similar to this:
+* The amount of data that the enclave is capable of storing encrypted (through a process known as [sealing and unsealing](https://software.intel.com/en-us/blogs/2016/05/04/introduction-to-intel-sgx-sealing) is currently limited to 4kB. This is obviously not limited by disk space, but by the fact that the amount of data to seal/unseal needs to fit inside the enclave memory. Intel SGX documentation states that the enclave limit is 4GB, which should be tested for this particular application. The current limit is controlled by `SEAL_LOG_SIZE` in [enclave/src/data.rs] around Line 25. This value needs to at most equal to `HeapMaxSize` defined in [enclave/Enclave.config.xml]
 
-    ```bash
-    [+] Init Enclave Successful 2!
-    This is a normal world string passed into Enclave!
-    This is a in-Enclave Rust string!
-    gd: 1 0 0 1 
-    static: 1 eremove: 0 dyn: 0
-    EDMM: 0, feature: 9007268796301311
-    supported sgx
-    [+] say_something success...
-    ```
+* Enclave data is serialized for sealing/unsealing using JSON format, which is highly inefficient in terms of space. This should be improved using a binary format such as CBOR. The correct library `serde-cbor` that is SGX compatible should be identified and used, the code adjusted to use that. Data is JSON_serialized in [enclave/src/data.rs] in the first line of `create_sealeddata_for_serializable()`, and later deserialized in the last line of `recover_sealeddata_for_serializable()`.
 
-## ToDo
+* Error handling needs much improvement, as most functions inside the enclave will return success regardless of whether the fail or succeed. This obviously makes it hard to debug and troubleshoot. The developer team at Enigma is working on the right infrastructure for error handling with **enigmampc/EnigmaBlockchain**. Once that work is completed, it should be straightforward to be ported to this repo.
 
-* Use the `hello-rust` folder and scaffolding for the COVID-19 code
-* Write the actual Rust code for the application
-* Implement Remote Attestation to provide proof of code running in legitimate enclave
-* Implement data sealing and unsealing choosing the right configuration so that data is uniquely assigned to this enclave
+* Data is overwritten each time a user submits data - this can be improved but is hard. Currently user data is stored inside the enclave as a Rust [HashMap](https://doc.rust-lang.org/std/collections/struct.HashMap.html) indexed by the `userId` as its key, and the array of locations as its associated data. so everytime a new dataset is added to HashMap overwrites whatever prior entry was there for that key. Improving on this is hard because one would need to find data overlaps in terms of space and time with prior entries and do a proper merge.
+
+* Data is not deleted after two weeks - this is easy to implement. This requires another end point that only the server would call on a daily basis (setup a cronjob) to delete old data. This endpoint would **not** be made available at the JSON RPC server so that could only be called internally.
+
+* Document how to decode and interpred the Remote Attestation report. This is more of a task at the `client` end, but because all the information comes from SGX, it is included here.
+
 * Sign code and deploy

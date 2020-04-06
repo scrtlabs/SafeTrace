@@ -30,26 +30,28 @@ extern crate serde_repr;
 pub extern crate serde_json;
 extern crate rmp_serde;
 extern crate rustc_hex as hex;
+#[macro_use]
+pub extern crate log;
 
 use sgx_types::*;
 use sgx_urts::SgxEnclave;
 
-pub mod enigma_types;
+extern crate enigma_types;
+pub extern crate enigma_tools_u;
+extern crate enigma_tools_m;
+extern crate enigma_crypto;
+
 pub mod common_u;
 pub mod keys_u;
 pub mod networking;
 pub mod ocalls_u;
+pub mod esgx;
 
-use networking::{ipc_listener, IpcListener};
 use futures::Future;
-pub use ocalls_u::{ocall_save_to_memory};
+use networking::{ipc_listener, IpcListener};
 
 static ENCLAVE_FILE: &'static str = "enclave.signed.so";
 
-extern {
-    fn say_something(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
-                     some_string: *const u8, len: usize) -> sgx_status_t;
-}
 
 fn init_enclave() -> SgxResult<SgxEnclave> {
     let mut launch_token: sgx_launch_token_t = [0; 1024];
@@ -79,8 +81,10 @@ fn main() {
 
     let server = IpcListener::new(&format!("tcp://*:5552"));
 
+    const SPID: &str = "B0335FD3BC1CCA8F804EB98A6420592D";
+
     server
-        .run(move |multi| ipc_listener::handle_message(multi, &format!("SPID"), enclave.geteid(), 1))
+        .run(move |multi| ipc_listener::handle_message(multi, SPID, enclave.geteid(), 1))
 
         //.run(move |multi| ipc_listener::handle_message(multi, &opt.spid, eid, opt.retries))
         // .run(|mul| {

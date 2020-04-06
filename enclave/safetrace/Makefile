@@ -21,7 +21,7 @@
 SGX_SDK ?= $(HOME)/.sgxsdk/sgxsdk
 
 # The path to the incubator-teaclave-sgx-sdk code.
-SGX_SDK_RUST ?= ../incubator-teaclave-sgx-sdk/
+SGX_SDK_RUST ?= $(HOME)/sgx
 
 
 SGX_MODE ?= HW
@@ -78,6 +78,7 @@ Enclave_EDL_Files := enclave/Enclave_t.c enclave/Enclave_t.h app/Enclave_u.c app
 ######## APP Settings ########
 
 App_Rust_Flags := --release
+Rust_target_dir := release
 App_SRC_Files := $(shell find app/ -type f -name '*.rs') $(shell find app/ -type f -name 'Cargo.toml')
 
 # Include paths for untrusted EDL object
@@ -86,7 +87,7 @@ App_Include_Paths := -I ./app -I./include -I$(SGX_SDK)/include -I$(CUSTOM_EDL_PA
 # C compilation flags for untrusted EDL object
 App_C_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths)
 
-App_Rust_Path := ./app/target/release
+App_Rust_Path := ./app/target/$(Rust_target_dir)
 App_Enclave_u_Object :=app/libEnclave_u.a
 App_Name := safetrace-app
 
@@ -160,7 +161,8 @@ enclave/Enclave_t.o: $(Enclave_EDL_Files)
 
 # Enclave DLL
 $(RustEnclave_Name): enclave compiler-rt $(App_Name) enclave/Enclave_t.o
-	cp ../incubator-teaclave-sgx-sdk/compiler-rt/libcompiler-rt-patch.a ./lib
+	mkdir -p $(CUSTOM_LIBRARY_PATH)
+	cp $(SGX_SDK_RUST)/compiler-rt/libcompiler-rt-patch.a $(CUSTOM_LIBRARY_PATH)
 	@$(CXX) enclave/Enclave_t.o -o $@ $(RustEnclave_Link_Flags)
 	@echo "LINK =>  $@"
 
@@ -173,7 +175,7 @@ $(Signed_RustEnclave_Name): $(RustEnclave_Name)
 
 .PHONY: enclave
 # Invocation of Makefile in ./enclave, which builds trusted Rust static library and copies it to $(CUSTOM_LIBRARY_PATH)
-enclave:
+enclave: $(Enclave_EDL_Files)
 	mkdir -p $(CUSTOM_LIBRARY_PATH)
 	$(MAKE) -C ./enclave/ CARGO_FLAGS=$(App_Rust_Flags) Rust_target_dir=$(Rust_target_dir)
 
@@ -184,7 +186,7 @@ compiler-rt:
 
 .PHONY: clean
 clean:
-	@rm -f $(App_Name) $(RustEnclave_Name) $(Signed_RustEnclave_Name) enclave/*_t.* app/*_u.* lib/*.a
+	@rm -f $(CUSTOM_BIN_PATH)/$(App_Name) $(RustEnclave_Name) $(Signed_RustEnclave_Name) enclave/*_t.* app/*_u.* $(CUSTOM_LIBRARY_PATH)/*.a
 	@rm -rf enclave/enigma-types.h app/enigma-types.h
 	@cd enclave && cargo clean && rm -f Cargo.lock
 	@cd app && cargo clean && rm -f Cargo.lock

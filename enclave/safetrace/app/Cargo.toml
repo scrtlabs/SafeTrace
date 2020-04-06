@@ -5,8 +5,12 @@ authors = ["The Teaclave Authors"]
 build = "build.rs"
 
 [dependencies]
-sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
-sgx_urts = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
+sgx_types = { git = "https://github.com/baidu/rust-sgx-sdk.git", rev = "v1.0.9" }
+sgx_urts = { git = "https://github.com/baidu/rust-sgx-sdk.git", rev = "v1.0.9" }
+enigma-types = { git = "https://github.com/enigmampc/enigma-core.git", branch="develop", features = ["std"] }
+enigma-tools-u = { git = "https://github.com/enigmampc/enigma-core.git", branch="develop" }
+enigma-tools-m = { git = "https://github.com/enigmampc/enigma-core.git", branch="develop" }
+enigma-crypto = { git = "https://github.com/enigmampc/enigma-core.git", branch="develop" }
 
 futures = { version = "0.1.25", default-features = false }
 tokio-zmq = "0.9.0"
@@ -15,9 +19,7 @@ failure = "0.1.3"
 serde = { version = "1.0", default-features = false, features=["serde_derive"] }
 serde_json = "1.0"
 serde_repr = "0.1"
-rustc-hex = "1.0.0" # 2.0.1?
 rmp-serde = "0.14.0"
-
-[patch.'https://github.com/apache/teaclave-sgx-sdk.git']
-sgx_types = { path = "../../incubator-teaclave-sgx-sdk/sgx_types" }
-sgx_urts = { path = "../../incubator-teaclave-sgx-sdk/sgx_urts" }
+rustc-hex = "1.0.0"
+lazy_static = "1.3.0"
+log = "0.4.6"

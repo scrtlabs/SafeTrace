@@ -1,32 +1,35 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
+# Because build-dependencies and regular dependencies are mixed together it's not possible to import
+# bindgen into the enclave's build.rs (https://github.com/rust-lang/cargo/issues/2589)
+# The solution is to install the bindgen CLI in the docker and use it manually in the Makefile.
+
+SGX_SDK ?= /opt/sgxsdk
+
 Rust_Enclave_Name := libenclave.a
 Rust_Enclave_Files := $(wildcard src/*.rs)
-Rust_Target_Path := $(CURDIR)/../../incubator-teaclave-sgx-sdk/xargo
+# Rust_Target_Path := $(CURDIR)/../../incubator-teaclave-sgx-sdk/xargo
 
-.PHONY: all
+BINDGEN_OUTPUT_FILE := src/auto_ffi.rs
+BINDGEN_RAW_LINES := "\#![allow(dead_code)] use enigma_types::*; use sgx_types::*;"
+BINDGEN_CLANG_FLAGS := -I$(SGX_SDK)/include -I$(HOME)/sgx/edl
+BINDGEN_FLAGS := --default-enum-style=rust --rust-target=nightly \
+	--no-recursive-whitelist --use-array-pointers-in-arguments \
+	--whitelist-function ocall_.*  --raw-line $(BINDGEN_RAW_LINES)
 
-all: $(Rust_Enclave_Name)
+
+all: bindgen $(Rust_Enclave_Name)
 
 $(Rust_Enclave_Name): $(Rust_Enclave_Files)
 ifeq ($(XARGO_SGX), 1)
-	RUST_TARGET_PATH=$(Rust_Target_Path) xargo build --target x86_64-unknown-linux-sgx --release
-	cp ./target/x86_64-unknown-linux-sgx/release/libsafetraceenclave.a ../lib/libenclave.a
+	RUST_TARGET_PATH=$(shell pwd) xargo build --target x86_64-unknown-linux-sgx $(CARGO_FLAGS)
+	cp ./target/x86_64-unknown-linux-sgx/$(Rust_target_dir)/libsafetraceenclave.a ../lib/libenclave.a
 else
-	cargo build --release
-	cp ./target/release/libsafetraceenclave.a ../lib/libenclave.a
+	cargo build $(CARGO_FLAGS)
+	cp ./target/$(Rust_target_dir)/libsafetraceenclave.a ../lib/libenclave.a
 endif
+
+
+.PHONY: bindgen
+bindgen: Enclave_t.h
+	cargo build -p enigma-types $(CARGO_FLAGS) # Meant to make sure `enigma-types.h` already exists and can be included.
+	bindgen Enclave_t.h $(BINDGEN_FLAGS) -- $(BINDGEN_CLANG_FLAGS) > $(BINDGEN_OUTPUT_FILE)
+	rustfmt  $(BINDGEN_OUTPUT_FILE)
