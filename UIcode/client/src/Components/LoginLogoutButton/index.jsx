@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { GoogleLogin, GoogleLogout } from "react-google-login";
 import NavLinkStyle from "Styled/NavLink";
 import styled from "styled-components";
-import { googleLoginToApi } from "Services/auth";
 import { useContext } from "react";
 import { authContext } from "Providers/AuthProvider";
 
@@ -11,19 +10,21 @@ const StyledButton = styled.button`
 `;
 
 const LoginLogoutButton = ({ defaultButton = false }) => {
-  const { token, setToken } = useContext(authContext);
+  const { googleToken, loginWithGoogleToken, logout } = useContext(authContext);
 
-  const loginSuccess = (response) => {
-    setToken(response.tokenId);
-    googleLoginToApi(response.tokenId).then(console.log, console.log);
-  };
+  const loginSuccess = useCallback(
+    (response) => {
+      loginWithGoogleToken(response.tokenId);
+    },
+    [loginWithGoogleToken]
+  );
 
   const loginFail = (response) => {
     alert("Login failed");
   };
 
   const onLogout = (response) => {
-    setToken(null);
+    logout();
   };
 
   const render = defaultButton
@@ -34,8 +35,7 @@ const LoginLogoutButton = ({ defaultButton = false }) => {
         </StyledButton>
       );
 
-  console.log({ token });
-  return token ? (
+  return googleToken ? (
     <GoogleLogout
       clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
       buttonText="Logout"

@@ -6,13 +6,18 @@ export const getToken = () => {
 };
 
 export const googleLoginToApi = (token) => {
-  return Axios.post(
-    `${process.env.REACT_APP_API_URL}/user/gloging`,
-    {},
+  return Axios.post(`${process.env.REACT_APP_API_URL}/user/glogin`, {
+    token,
+  });
+};
+
+export const getMe = (token) => {
+  return Axios.get(
+    `${process.env.REACT_APP_API_URL}/user/me`,
+
     {
       headers: {
         authorization: token,
-        "auth-user-type": 1,
       },
     }
   );

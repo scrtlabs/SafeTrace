@@ -18,7 +18,7 @@ const Contribute = () => {
   const [step, setStep] = useState(0);
   const [selectedTestResult, setSelectedTestResult] = useState("positive");
   const [testDate, setTestDate] = useState(null);
-  const { token } = useContext(authContext);
+  const { isLoggedIn } = useContext(authContext);
 
   const showButtons = step === 1;
 
@@ -51,7 +51,7 @@ const Contribute = () => {
 
   return (
     <Wrapper>
-      {token ? (
+      {isLoggedIn ? (
         <>
           <CurrentStep />
           {showButtons && (
