@@ -1,0 +1,33 @@
+{
+  "name": "api-server-users",
+  "version": "0.0.1",
+  "description": "Backend API server for managing user data",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm i && nodemon server.js"
+  },
+  "keywords": [],
+  "author": "Cristian Malfesi <cmalfesi@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.1.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.4.0",
+    "google-auth-library": "^6.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.9.4",
+    "mongoose-easy-auto-increment": "^1.0.1"
+  },
+  "devDependencies": {
+    "mongo-seeding": "^3.0.0",
+    "nodemon": "^1.19.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/npm/npm.git"
+  }
+}

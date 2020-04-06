@@ -1,0 +1,36 @@
+version: "2"
+services:
+  mongo:
+    container_name: mongoDB
+    image: mongo
+    #environment:
+      # provide your credentials here
+      #- MONGO_INITDB_ROOT_USERNAME=admin
+      #- MONGO_INITDB_ROOT_PASSWORD=12345678
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "10975:27017"
+#  admin-mongo:
+#    container_name: adminmongo
+#    image: 0x59/admin-mongo:latest
+#    ports:
+#      - "8082:8082"
+#    environment:
+#      - PORT=8082
+#      - CONN_NAME=mongo
+#      - DB_HOST=mongo
+#    links:
+#      - mongo
+  # app:
+  #   container_name: apiServerUsers
+  #   #restart: always
+  #   build:
+  #     context: ./app
+  #     dockerfile: ./Dockerfile
+  #   volumes:
+  #     - ./app:/usr/src/apiServerUsers
+  #   ports:
+  #     - "4080:4080"
+  #   links:
+  #     - mongo
