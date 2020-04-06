@@ -8,6 +8,7 @@ import Step2 from "./Step2";
 import { authContext } from "Providers/AuthProvider";
 import LoginForm from "Sections/LoginForm";
 import Step3 from "./Step3";
+import { parseJsonFile, convertLocationData } from "Services/parser";
 
 const Wrapper = styled.div`
   padding-top: 50px;
@@ -24,6 +25,14 @@ const Contribute = () => {
   const handleTestDateChange = (date) => setTestDate(date);
   const handleNextClick = () => setStep((step) => step + 1);
   const handleBackClick = () => setStep((step) => step - 1);
+  const onFileChange = (f) => {
+    parseJsonFile(f).then(
+      (json) => {
+        console.log(convertLocationData(json));
+      },
+      () => alert("Invalid file")
+    );
+  };
 
   const steps = [
     () => <Step1 submitReport={handleNextClick} viewResults={() => {}} />,
@@ -35,7 +44,7 @@ const Contribute = () => {
         onTestDateChange={handleTestDateChange}
       />
     ),
-    () => <Step3 />,
+    () => <Step3 onFileChange={onFileChange} />,
   ];
 
   const CurrentStep = steps[step];
