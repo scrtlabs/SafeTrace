@@ -93,7 +93,7 @@ curl --location --request POST 'http://localhost:4080/user/login' \
 
 ```
 curl --location --request GET 'http://localhost:4080/user/me' \
---header 'token: eyJhbGci....blSXAPm0'
+--header 'x-access-token: eyJhbGci....blSXAPm0'
 
 ```
 **Returns**
@@ -116,19 +116,16 @@ curl --location --request GET 'http://localhost:4080/user/me' \
 
 # Report
 
-## /report 
+## POST: /report 
 
-This let to add a result test report. Use auth-user-type to inform the type of user:
-- 0 = internal registered user 
-- 1 = google user
-
+This let to add a result test to the report table.
 
 ```
 curl --location --request POST 'http://localhost:4080/report' \
 --header 'x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWU4ODhhZDBlZGEwN2U2ZGFlYjY0ODBiIn0sImlhdCI6MTU4NjAxNjA2MiwiZXhwIjoxNTg2MDE5NjYyfQ.hmxFFAz1P80Yq4Q2iA6D8IpCOhI5_7xkfZYWDkQOHK4' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-	"idUser": "1",
+	"idUser": "'9365df4e9acef8b63b45dc3534491225ac32630abe6991f6bf5a74c9803412fc'",
 	"testDate": "03/02/2020",
 	"testResult": 0
 }'
@@ -146,6 +143,36 @@ curl --location --request POST 'http://localhost:4080/report' \
         "idReport": 13,
         "__v": 0
     }
+}
+```
+
+## GET: /report/{idUser} 
+
+Get the list of reported tests
+
+
+```
+curl --location --request GET 'http://localhost:4080/report/9365df4e9acef8b63b45dc3534491225ac32630abe6991f6bf5a74c9803412fc' \
+--header 'x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWU4ODhhZDBlZGEwN2U2ZGFlYjY0ODBiIn0sImlhdCI6MTU4NjI4Njg4MiwiZXhwIjoxNTg2MjkwNDgyfQ.zVNwkDZCXtlxRJnDhonptMxbgpngrB3T7cNIy8vde_I'
+```
+**Returns**
+
+```
+{
+    "reports": [
+        {
+            "createdAt": "2020-04-07T19:24:31.388Z",
+            "_id": "5e8cd38dc43d8007408e600d",
+            "idUser": "9365df4e9acef8b63b45dc3534491225ac32630abe6991f6bf5a74c9803412fc",
+            "testDate": "2020-03-04T03:00:00.000Z",
+            "testResult": 1,
+            "idReport": 17,
+            "__v": 0
+        },
+        {
+            ...
+        }
+    ]
 }
 ```
 
