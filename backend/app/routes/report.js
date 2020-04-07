@@ -18,16 +18,15 @@ const Report = require("../models/report");
  * @returns {json} returns if it saved ok
  */
 
-
 router.post(
     "/",
     [
         auth,
-        check("idUser", "Please Enter a Valid Username")
+        check("idUser", "Please Enter a Valid user ID")
             .not()
             .isEmpty(),
-        check("testDate", "Please enter a valid email").isString(),
-        check("testResult", "Please enter a valid password").isNumeric()
+        check("testDate", "Please enter a valid date").isString(),
+        check("testResult", "Please enter a valid value: 0, 1 or 2").isNumeric()
     ],
     async (req, res) => {
         const errors = validationResult(req);
@@ -75,29 +74,24 @@ router.post(
 
 /**
 * @method - GET
-* @description - Get LoggedIn User
-* @param - 
+* @description - Get reports list
+* @param - {string} idUser
 * @header token
 */
 
-router.get("/me", auth, async (req, res) => {
+router.get("/:idUser", auth, async (req, res) => {
     try {
         // request.user is getting fetched from Middleware after token authentication
-        const user = await User.findById(req.user.id);
-        user.password  = '---';
-        res.json(user);
+        const queryIdUser = req.params.idUser;
+        const reports = await Report.find({'idUser':queryIdUser});
+        res.status(200).json({
+            reports
+        });
+        
     } catch (e) {
-        res.send({ message: "Error in Fetching user" });
+        res.send({ message: "Error in Fetching reports" });
     }
 });
-
-/**
-* @method - GET
-* @description - Get Google LoggedIn User
-* @param 
-* @header token (google token)
-*/
-
 
 
 module.exports = router;

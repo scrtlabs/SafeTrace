@@ -11,7 +11,7 @@ var ReportSchema = new Schema({
     }
   },
   idUser: {
-    type: Number,
+    type: String,
     required: true
   },
   testDate: {
