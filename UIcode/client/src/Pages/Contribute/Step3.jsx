@@ -3,7 +3,7 @@ import Box from "Styled/Box";
 import Row from "Components/Grid/Row";
 import FileUpload from "Components/FileUpload/index.jsx";
 
-const Step3 = ({ onFileChange }) => {
+const Step3 = ({ onFileChange, onSubmit }) => {
   return (
     <Box>
       <h2>Self Report</h2>
@@ -44,7 +44,7 @@ const Step3 = ({ onFileChange }) => {
         Can’t find the file?
       </p>
       <Row>
-        <FileUpload onChange={onFileChange}/>
+        <FileUpload onChange={onFileChange} onSubmit={onSubmit}/>
       </Row>
     </Box>
   );

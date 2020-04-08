@@ -2,13 +2,17 @@ import React from "react";
 import RadioGroup from "Components/RadioGroup";
 import DatePicker from "Components/DatePicker";
 import Box from "Styled/Box";
+import ErrorMessage from "Styled/ErrorMessage";
 
 const Step2 = ({
   selectedTestResult,
   onTestResultChange,
   testDate,
   onTestDateChange,
+  errors,
 }) => {
+  const dateError = errors.find((e) => e.param === "testDate");
+
   return (
     <>
       <h2>Self Report</h2>
@@ -43,6 +47,7 @@ const Step2 = ({
           onDayChange={onTestDateChange}
           disabled={selectedTestResult === "not_tested"}
         />
+        {dateError && <ErrorMessage>{dateError.msg}</ErrorMessage>}
       </Box>
     </>
   );
