@@ -119,7 +119,7 @@ fabric.properties
 **/*.rs.bk
 
 
-# exclude docker mongdb data
+# exclude docker mongodb data
 backend/data/
 
 enigma-types.h
