@@ -29,18 +29,21 @@ export const isPlaceVisitActivity = (location) =>
 export const startedAfter = (timestamp) => (location) =>
   location.placeVisit.duration.startTimestampMs > timestamp;
 
-export const activityTransformer = (activity) => ({
+export const activityTransformer = (testResult) => (activity) => ({
   lat: activity.placeVisit.location.latitudeE7 / 10000000,
   lng: activity.placeVisit.location.longitudeE7 / 10000000,
   startTS: activity.placeVisit.duration.startTimestampMs,
   endTS: activity.placeVisit.duration.endTimestampMs,
+  testResult,
 });
 
-export const convertLocationData = (json) => {
+export const convertLocationData = (json, testResult = false) => {
   const startingDate = new Date().getTime() - 2 * 604800 * 1000;
 
   const activityFilter = (activity) =>
     isPlaceVisitActivity(activity) && startedAfter(startingDate)(activity);
 
-  return json.timelineObjects.filter(activityFilter).map(activityTransformer);
+  return json.timelineObjects
+    .filter(activityFilter)
+    .map(activityTransformer(testResult));
 };

@@ -72,7 +72,14 @@ const Header = ({ className }) => {
             </StyledNavLink>
           </NavLi>
           <NavLi>
-            <StyledNavLink to="/contribute">Contribute</StyledNavLink>
+            <StyledNavLink
+              to="/contribute"
+              isActive={(match, location) => {
+                return match || location.pathname === "/results";
+              }}
+            >
+              Contribute
+            </StyledNavLink>
           </NavLi>
         </NavUl>
 

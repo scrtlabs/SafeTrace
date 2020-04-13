@@ -28,6 +28,9 @@ const colors = {
     light: "#3FD86F",
     dark: "#0F983F",
     contrastText: "#FFFFFF"
+  },
+  text: {
+    main: '#000000'
   }
 };
 

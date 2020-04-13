@@ -136,25 +136,13 @@ export async function findMatch(userId) {
     });
 
     if (findMatchResult.findMatch.status === 0) {
-      console.log("Find Match operation successful");
-
-      let output = decrypt(
+      return decrypt(
         taskPubKey,
         privateKey,
         findMatchResult.findMatch.encryptedOutput
       );
-
-      if (output.length) {
-        console.log("Find matches:");
-        console.log(output);
-      } else {
-        console.log("No matches");
-      }
-    } else {
-      console.log("Something went wrong. Time to debug...");
     }
   } catch (err) {
-    console.log(err);
-    // Or throw an error
+    throw err;
   }
 }

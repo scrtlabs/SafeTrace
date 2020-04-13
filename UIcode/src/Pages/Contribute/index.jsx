@@ -12,6 +12,7 @@ import { parseJsonFile, convertLocationData } from "Services/parser";
 import { report } from "Services/api";
 import { addData } from "Services/enclave";
 import Authorized from "Sections/Authorized";
+import Flash from "Components/FlashMessage/Flash";
 
 const Wrapper = styled.div`
   padding-top: 50px;
@@ -26,6 +27,7 @@ const Contribute = ({ history }) => {
   const showButtons = step === 1;
 
   const nextPage = () => setStep((step) => step + 1);
+  const goToResultsPage = () => history.push("/results");
 
   const sendReport = () =>
     report({
@@ -48,13 +50,14 @@ const Contribute = ({ history }) => {
   const handleFileSubmit = (file) => {
     parseJsonFile(file)
       .then((json) => {
-        const data = convertLocationData(json);
-        addData(me.encryptedUserId, JSON.stringify(data))
+        const data = convertLocationData(json, testResult === "positive");
+        addData(me._id, JSON.stringify(data))
           .then(() => {
-            history.push(
-              "/results",
-              "Your data has been successfully shared with SafeTrace API."
+            Flash.set(
+              "Your data has been successfully shared with SafeTrace API.",
+              "success"
             );
+            goToResultsPage();
           })
           .catch(() => alert("An error occurred. Please try again"));
       })
@@ -76,7 +79,9 @@ const Contribute = ({ history }) => {
   };
 
   const steps = [
-    () => <Step1 submitReport={handleNextClick} viewResults={() => {}} />,
+    () => (
+      <Step1 submitReport={handleNextClick} viewResults={goToResultsPage} />
+    ),
     () => (
       <Step2
         selectedTestResult={testResult}

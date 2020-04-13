@@ -1,11 +1,18 @@
 import React, { useContext } from "react";
 import { authContext } from "Providers/AuthProvider";
+import DotLoader from "react-spinners/DotLoader";
 
 const Authorized = ({ children, alternative = null }) => {
-  const { isLoggedIn } = useContext(authContext);
+  const { isLoggedIn, loading } = useContext(authContext);
 
   const AlternativeComponent = alternative ? alternative : () => "";
-  return isLoggedIn ? children : <AlternativeComponent />;
+  return loading ? (
+    <DotLoader loading={loading} size={150}/>
+  ) : isLoggedIn ? (
+    children
+  ) : (
+    <AlternativeComponent />
+  );
 };
 
 export default Authorized;

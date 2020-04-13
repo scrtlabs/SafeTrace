@@ -1,5 +1,4 @@
 import React from "react";
-import "./App.css";
 import { BrowserRouter as Router, Switch } from "react-router-dom";
 import DefaultLayout from "Layouts/Default";
 import Home from "Pages/Home";

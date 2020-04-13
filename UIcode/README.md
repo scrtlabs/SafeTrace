@@ -30,6 +30,17 @@ Then add the API URL to your `.env.development`
 echo "REACT_APP_GOOGLE_CLIENT_ID=119469794689-hhq7rpcmd88c7r5gkiom0u2pakfka3cd.apps.googleusercontent.com" >> .env.development
 ```
 
+Include the Enclave URL in your `.env.development`
+```bash
+echo "REACT_APP_ENCLAVE_URL=https://safetrace.enigma.co" >> .env.development
+```
+
+Include Google Maps API Key in your `.env.development`, you can find instructions on how to obtain it here [https://developers.google.com/maps/documentation/javascript/get-api-key](https://developers.google.com/maps/documentation/javascript/get-api-key)
+
+```bash
+echo "REACT_APP_GOOGLE_MAPS_API_KEY=AaLeiVHdICmJYzM8w8aSyEzo-TainZ3W3Ev2QfQ" >> .env.development
+```
+
 Finally to run the client execute the following commands:
 
 ```bash

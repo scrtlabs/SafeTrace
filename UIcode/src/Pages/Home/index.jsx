@@ -4,7 +4,7 @@ class Home extends React.Component {
   render() {
     return (
       <div>
-        <div className="centeralign">
+        <div>
           <Card border="light" style={{ width: "18rem" }}>
             <Card.Body>
               <Card.Title>
