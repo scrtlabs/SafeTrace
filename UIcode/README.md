@@ -27,7 +27,7 @@ Then add the API URL to your `.env.development`
 
 ```bash
 #set google client id i.e. 119469794689-hhq7rpcmd88c7r5gkiom0u2pakfka3cd.apps.googleusercontent.com
-echo "REACT_APP_GOOGLE_CLIENT_ID=119469794689-hhq7rpcmd88c7r5gkiom0u2pakfka3cd.apps.googleusercontent.com" >> .env.development
+echo "REACT_APP_API_URL=http://localhost:4080" >> .env.development
 ```
 
 Include the Enclave URL in your `.env.development`
