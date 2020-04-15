@@ -62,8 +62,7 @@ export async function getEncryptionKey(publicKey) {
       }
     );
   });
-
-  const { result } = getEncryptionKeyResult;
+  const { result } = await getEncryptionKeyResult;
   const { taskPubKey } = result;
   // ToDo: verify signature
   return taskPubKey;
@@ -85,14 +84,8 @@ function decrypt(taskPubKey, privateKey, enc_variable) {
   return JSON.parse(outputStr);
 }
 
-export async function addData(userId, data) {
-  let { publicKey, privateKey } = getClientKeys();
-
-  let taskPubKey = await getEncryptionKey(publicKey);
-  let encryptedUserId = encrypt(taskPubKey, privateKey, userId);
-  let encryptedData = encrypt(taskPubKey, privateKey, data);
-
-  return await new Promise((resolve, reject) => {
+async function addPersonalData(encryptedUserId, encryptedData, publicKey) {
+  const getEncryptionKeyResult = await new Promise((resolve, reject) => {
     client.request(
       "addPersonalData",
       {
@@ -109,32 +102,49 @@ export async function addData(userId, data) {
       }
     );
   });
+  const { result } = await getEncryptionKeyResult;
+  return result;
+}
+async function findMatchCall(encryptedUserId, publicKey) {
+  const findMatchResult = await new Promise((resolve, reject) => {
+    client.request(
+      "findMatch",
+      {
+        encryptedUserId: encryptedUserId,
+        userPubKey: publicKey,
+      },
+      (err, response) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(response);
+      }
+    );
+  });
+  const { result } = await findMatchResult;
+  return result;
+}
+
+export async function addData(userId, data) {
+  let { publicKey, privateKey } = getClientKeys();
+  let taskPubKey = await getEncryptionKey(publicKey);
+  let encryptedUserId = await encrypt(taskPubKey, privateKey, userId);
+  let encryptedData = await encrypt(taskPubKey, privateKey, data);
+  let addDataResult = await addPersonalData(
+    encryptedUserId,
+    encryptedData,
+    taskPubKey
+  );
+  return addDataResult;
 }
 
 export async function findMatch(userId) {
   let { publicKey, privateKey } = getClientKeys();
-
   try {
     let taskPubKey = await getEncryptionKey(publicKey);
     let encryptedUserId = encrypt(taskPubKey, privateKey, userId);
-
-    const findMatchResult = await new Promise((resolve, reject) => {
-      client.request(
-        "findMatch",
-        {
-          encryptedUserId: encryptedUserId,
-          userPubKey: publicKey,
-        },
-        (err, response) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve(response);
-        }
-      );
-    });
-
+    let findMatchResult = await findMatchCall(encryptedUserId, taskPubKey);
     if (findMatchResult.findMatch.status === 0) {
       return decrypt(
         taskPubKey,
