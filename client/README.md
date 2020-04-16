@@ -78,7 +78,7 @@ $ curl -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "id":1, "metho
 * Request
 
 ```bash
-{"jsonrpc":"2.0","id":1,"result":{"id":"5708a053c9","type":"NewTaskEncryptionKey","result":{"taskPubKey":"1a75beafbc32c5a4ba881dcca795fb0f87b4b473e5689592db942366b763d52466922a7103a6975be699cf6f3b499294f5dd92cbe5a2e15470dd03bc971c770d","sig":"1994e259d3befd9fab06c6b9f00c4f892bb6c6d54f6449ccd0b42df79ceeb7ae057aa85b3fe2d070c21775a5cac60274bf1ac8e3c0e104872601a136c978deeb1b"}}}
+curl -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method": "newTaskEncryptionKey","params": { "userPubKey":"cc955077ff7aeb67e544bb0dfad0a5ac1d3117f4115c528d38da9c2337cb033ec08f1d12a580d2ccfed02144e70d961c72e28e92ef48b9056c08137918c5ab2d"}}' https://safetrace.enigma.co
 ```
 
 * Response
@@ -92,15 +92,15 @@ $ curl -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "id":1, "metho
     "type":"NewTaskEncryptionKey",
     "result": {
       "taskPubKey":"1a75beafbc32c5a4ba881dcca795fb0f87b4b473e5689592db942366b763d52466922a7
-      103a6975be699cf6f3b499294f5dd92cbe5a2e15470dd03bc971c770d","sig":"1994e259d3befd9fab0
-      6c6b9f00c4f892bb6c6d54f6449ccd0b42df79ceeb7ae057aa85b3fe2d070c21775a5cac60274bf1ac8e3
-      c0e104872601a136c978deeb1b"
+      103a6975be699cf6f3b499294f5dd92cbe5a2e15470dd03bc971c770d",
+      "sig":"1994e259d3befd9fab06c6b9f00c4f892bb6c6d54f6449ccd0b42df79ceeb7ae057aa85b3fe2d0
+      70c21775a5cac60274bf1ac8e3c0e104872601a136c978deeb1b"
     }
   }
 }
 ```
 
-## newTaskEncryptionKey
+## addPersonalData
 
 * Request
 
@@ -109,8 +109,7 @@ curl -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "id":1, "method"
 ```
 
 *NOTE: The parameters `encryptedUserId` and `encryptedData` are encrypted with an ephemeral Diffie-Hellman key, so you need
-to run the method `newTaskEncryptionKey` everytime to be able to derive that key, and use it to encrypt these parameters. This
-also means that the encrypted values will change every time.*
+to run the method `newTaskEncryptionKey` everytime to be able to derive that key, and use it to encrypt these parameters. This also means that the encrypted values will change every time.*
 
 * Response
 
