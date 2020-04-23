@@ -135,6 +135,11 @@ to run the method `newTaskEncryptionKey` everytime to be able to derive that key
 curl -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "id":1, "method":"findMatch", "params": {"encryptedUserId":"15806c56ed8fb37a9a45c8c3efa227a98a406c5787bf3ff90f0c89fde8ad3d6fdd", "userPubKey": "cc955077ff7aeb67e544bb0dfad0a5ac1d3117f4115c528d38da9c2337cb033ec08f1d12a580d2ccfed02144e70d961c72e28e92ef48b9056c08137918c5ab2d"}}' https://safetrace.enigma.co
 ```
 
+*NOTE: Analogously to the previous method, the input and output from this method are encrypted, which you can encrypt and
+decrypt with the key derived through Diffie-Hellman. Again, the command and output included here are for reference 
+purposes, but you will not be able to reproduce verbatim. Instead, you have to run `newTaskEncryptionKey` and use that
+for encryption and decryption. Each key can only be used once, so running any command like this through `curl` reusing parameters from a previous operation like the ones presented here, results in a failed operation.*
+
 * Failed Response
 
 ```json
@@ -150,9 +155,3 @@ curl -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "id":1, "method"
   }
 }
 ```
-
-*NOTE: Analogously to the previous method, the input and output from this method are encrypted, which you can encrypt and
-decrypt with the key derived through Diffie-Hellman. Again, the command and output included here are for reference 
-purposes, but you will not be able to reproduce verbatim. Instead, you have to run `newTaskEncryptionKey` and use that
-for encryption and decryption. Each key can only be used once, so running any command like this through `curl` reusing parameters from a previous operation like the ones presented here, results in a failed operation.*
-
