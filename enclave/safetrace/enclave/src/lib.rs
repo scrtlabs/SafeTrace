@@ -167,6 +167,14 @@ pub unsafe extern "C" fn ecall_find_match(
     userPubKey: &[u8; 64],
     serialized_ptr: *mut u64) -> EnclaveReturn {
 
+    // Initialize the pointer, in case we error out, it points somewhere,
+    // otherwise we get a segmentation fault when we throw an error
+    let empty = [0u8];
+    *serialized_ptr = match ocalls_t::save_to_untrusted_memory(&empty) {
+        Ok(ptr) => ptr,
+        Err(e) => return e.into(),
+    };
+
     let encryptedUserId = slice::from_raw_parts(encryptedUserId, encryptedUserId_len);
 
     let io_key;
