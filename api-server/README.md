@@ -43,7 +43,40 @@ Submits new personal data from the user (identified by its `userId`) providing a
 
 **Returns**
 
-* `result` (Boolean) - `true` if the operation was successful, `false` otherwise
+* `status` (Integer) - `0` if the operation was successful, other values otherwise
+
+    **Successsful Operation**
+
+    ```json
+    {
+	  "jsonrpc": "2.0",
+	  "id": 1,
+	  "result": {
+	  	"id": "dd5ee176c4",
+	  	"type": "AddPersonalData",
+	  	"addPersonalData": {
+	  	  "status": 0
+	  	}
+	  }
+	}
+	```
+
+	**Failed Operation**
+
+    ```json
+    {
+	  "jsonrpc": "2.0",
+	  "id": 1,
+	  "result": {
+	  	"id": "3254abe86c",
+	  	"type": "AddPersonalData",
+	  	"addPersonalData": {
+	  	  "status": -1
+	  	}
+	  }
+	}
+	```
+
 
 ## findMatch
 
@@ -55,9 +88,35 @@ Queries whether there is a match both in location and time between the user (ide
 
 **Returns**
 
-* `result` (Boolean) - `true` if at least one match was found, `false` otherwise
-* `matches` (Array) - if a match was found, this field will be populated with an array of `lat`, `lng` and `timestamp` where a match was found.
+* `status` (Integer) - `0` if the operation was successful, other values otherwise
+* `matches` (Array) - if a match was found, this field will be populated with an array of `lat`, `lng` and `timestamp` where a match was found. If no match was found, this will return an empty array. This field comes encrypted, and needs to be decrypted to obtain the array.
 
+    **Successsful Operation**
+    
+    ```json
+    { 
+        "id": "4078a17e30",
+        "type": "FindMatch",
+        "findMatch":
+        {
+	    "status": 0,
+            "encryptedOutput": "25b2ec3c7b1ed1fdd0bf2fcc517b12af815fb1b161f3949f5fe0cb60c17e"
+	}
+    }
+    ```
+
+    **Failed Operation**
+    
+    ```json
+    { 
+        "id": "da7d3d68ff",
+        "type": "FindMatch",
+        "findMatch":
+        {
+	    "status": -1,
+	}
+    }
+    ````
 
 # Data Specification
 
