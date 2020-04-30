@@ -7,7 +7,7 @@ const web3utils = require('web3-utils');
 const data = require('./data.js');
 
 
-const JSON_RPC_Server='http://localhost:8080';
+const JSON_RPC_Server='https://safetrace.enigma.co';
 
 const callServer = function(request, callback) {
   let config = {

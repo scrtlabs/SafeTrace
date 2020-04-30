@@ -3,6 +3,7 @@
 - This is a React UI to interact with the backend and the Enclave service.
 - It is still in development, for now using it client you can report new user data and upload location history.
 - For simplicity, we are currently only supporting Google sign-in
+> This is a full stack React-Express file uploader but could easily be modified to work with any back-end including cloud storage
 
 ## Quick Start
 
@@ -46,4 +47,8 @@ Finally to run the client execute the following commands:
 ```bash
 # Serve on localhost:3000
 npm start
+
+
+# Serve on localhost:3000
+npm run dev
 ```

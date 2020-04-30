@@ -78,7 +78,7 @@ $ curl -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "id":1, "metho
 * Request
 
 ```bash
-{"jsonrpc":"2.0","id":1,"result":{"id":"5708a053c9","type":"NewTaskEncryptionKey","result":{"taskPubKey":"1a75beafbc32c5a4ba881dcca795fb0f87b4b473e5689592db942366b763d52466922a7103a6975be699cf6f3b499294f5dd92cbe5a2e15470dd03bc971c770d","sig":"1994e259d3befd9fab06c6b9f00c4f892bb6c6d54f6449ccd0b42df79ceeb7ae057aa85b3fe2d070c21775a5cac60274bf1ac8e3c0e104872601a136c978deeb1b"}}}
+curl -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method": "newTaskEncryptionKey","params": { "userPubKey":"cc955077ff7aeb67e544bb0dfad0a5ac1d3117f4115c528d38da9c2337cb033ec08f1d12a580d2ccfed02144e70d961c72e28e92ef48b9056c08137918c5ab2d"}}' https://safetrace.enigma.co
 ```
 
 * Response
@@ -92,15 +92,15 @@ $ curl -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "id":1, "metho
     "type":"NewTaskEncryptionKey",
     "result": {
       "taskPubKey":"1a75beafbc32c5a4ba881dcca795fb0f87b4b473e5689592db942366b763d52466922a7
-      103a6975be699cf6f3b499294f5dd92cbe5a2e15470dd03bc971c770d","sig":"1994e259d3befd9fab0
-      6c6b9f00c4f892bb6c6d54f6449ccd0b42df79ceeb7ae057aa85b3fe2d070c21775a5cac60274bf1ac8e3
-      c0e104872601a136c978deeb1b"
+      103a6975be699cf6f3b499294f5dd92cbe5a2e15470dd03bc971c770d",
+      "sig":"1994e259d3befd9fab06c6b9f00c4f892bb6c6d54f6449ccd0b42df79ceeb7ae057aa85b3fe2d0
+      70c21775a5cac60274bf1ac8e3c0e104872601a136c978deeb1b"
     }
   }
 }
 ```
 
-## newTaskEncryptionKey
+## addPersonalData
 
 * Request
 
@@ -109,10 +109,9 @@ curl -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "id":1, "method"
 ```
 
 *NOTE: The parameters `encryptedUserId` and `encryptedData` are encrypted with an ephemeral Diffie-Hellman key, so you need
-to run the method `newTaskEncryptionKey` everytime to be able to derive that key, and use it to encrypt these parameters. This
-also means that the encrypted values will change every time.*
+to run the method `newTaskEncryptionKey` everytime to be able to derive that key, and use it to encrypt these parameters. Each key can only be used once, so running any command like this through `curl` reusing parameters from a previous operation like the ones presented here, results in a failed operation.*
 
-* Response
+* Failed Response
 
 ```json
 {
@@ -122,7 +121,7 @@ also means that the encrypted values will change every time.*
     "id":"eb2f102370",
     "type":"AddPersonalData",
     "addPersonalData": {
-      "status":0
+      "status": -1
     }
   }
 }
@@ -136,7 +135,12 @@ also means that the encrypted values will change every time.*
 curl -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "id":1, "method":"findMatch", "params": {"encryptedUserId":"15806c56ed8fb37a9a45c8c3efa227a98a406c5787bf3ff90f0c89fde8ad3d6fdd", "userPubKey": "cc955077ff7aeb67e544bb0dfad0a5ac1d3117f4115c528d38da9c2337cb033ec08f1d12a580d2ccfed02144e70d961c72e28e92ef48b9056c08137918c5ab2d"}}' https://safetrace.enigma.co
 ```
 
-* Response
+*NOTE: Analogously to the previous method, the input and output from this method are encrypted, which you can encrypt and
+decrypt with the key derived through Diffie-Hellman. Again, the command and output included here are for reference 
+purposes, but you will not be able to reproduce verbatim. Instead, you have to run `newTaskEncryptionKey` and use that
+for encryption and decryption. Each key can only be used once, so running any command like this through `curl` reusing parameters from a previous operation like the ones presented here, results in a failed operation.*
+
+* Failed Response
 
 ```json
 { 
@@ -146,18 +150,8 @@ curl -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "id":1, "method"
     "id": "d23d723a6a",
     "type": "FindMatch",
     "findMatch": { 
-      "status": 0,
-      "encryptedOutput": "45c90f568a5bb096fc39ae8429c3e05cd29f40c30c0f89e8c0395cf431f5c2934d
-      232cff4eb3c27b18e9704790e65b0bdecdcd02d6e8b5b668991d3e53b804c23b24c7f5d9e5d1a2c322036a
-      3068991ddc0ebd7a56ddd1b90a7d857c790844f5233b22aad906bea938c77d24882b1043d2e84b2c8d959d
-      d0"
+      "status": -1
     } 
   }
 }
 ```
-
-*NOTE: Analogously to the previous method, the input and output from this method are encrypted, which you can encrypt and
-decrypt with the key derived through Diffie-Hellman. Again, the command and output included here are for reference 
-purposes, but you will not be able to reproduce verbatim. Instead, you have to run `newTaskEncryptionKey` and use that
-for encryption and decryption.*
-

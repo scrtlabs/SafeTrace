@@ -156,7 +156,12 @@ pub(self) mod handling {
                                          encrypted_data.len(),
                                          &user_pub_key) };
 
-        let result = IpcResults::AddPersonalData { status: Status::Passed };
+        let result;
+        if(ret == sgx_status_t::SGX_SUCCESS) {
+            result = IpcResults::AddPersonalData { status: Status::Passed };
+        } else {
+            result = IpcResults::AddPersonalData { status: Status::Failed };
+        }
         Ok(IpcResponse::AddPersonalData { result })
     }
 
@@ -184,7 +189,12 @@ pub(self) mod handling {
         let box_ptr = serialized_ptr as *mut Box<[u8]>;
         let part = unsafe { Box::from_raw(box_ptr) };
 
-        let result = IpcResults::FindMatch { status: Status::Passed, encryptedOutput: part.to_hex()};
+        let result;
+        if(ret == sgx_status_t::SGX_SUCCESS) {
+            result = IpcResults::FindMatch { status: Status::Passed, encryptedOutput: part.to_hex()};
+        } else {
+            result = IpcResults::FindMatch { status: Status::Failed, encryptedOutput: "".to_string() };
+        }
         Ok(IpcResponse::FindMatch { result })
     }
 

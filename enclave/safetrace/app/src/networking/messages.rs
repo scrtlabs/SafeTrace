@@ -54,7 +54,7 @@ pub enum IpcResults {
     #[serde(rename = "result")]
     DHKey { taskPubKey: String, sig: String },
     AddPersonalData { status: Status },
-    FindMatch { status: Status, encryptedOutput: String },
+    FindMatch { status: Status, #[serde(skip_serializing_if = "String::is_empty")] encryptedOutput: String },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
