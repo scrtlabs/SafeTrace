@@ -48,6 +48,7 @@ const Contribute = ({ history }) => {
       });
 
   const handleFileSubmit = (file) => {
+    console.log('json_file_uploaded',file);
     parseJsonFile(file)
       .then((json) => {
         const data = convertLocationData(json, testResult === "positive");
@@ -66,7 +67,8 @@ const Contribute = ({ history }) => {
 
   const handleTestDateChange = (date) => setTestDate(date);
   const handleNextClick = () => {
-    if (step === 1) {
+    console.log('step',step, testResult);
+    if (step === 1 && testResult !== "not_tested") {
       sendReport();
     } else {
       nextPage();
