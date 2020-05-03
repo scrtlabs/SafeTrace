@@ -32,8 +32,8 @@ export const startedAfter = (timestamp) => (location) =>
 export const activityTransformer = (testResult) => (activity) => ({
   lat: activity.placeVisit.location.latitudeE7 / 10000000,
   lng: activity.placeVisit.location.longitudeE7 / 10000000,
-  startTS: activity.placeVisit.duration.startTimestampMs,
-  endTS: activity.placeVisit.duration.endTimestampMs,
+  startTS: activity.placeVisit.duration.startTimestampMs / 1,
+  endTS: activity.placeVisit.duration.endTimestampMs / 1,
   testResult,
 });
 
@@ -42,7 +42,7 @@ export const convertLocationData = (json, testResult = false) => {
 
   const activityFilter = (activity) =>
     isPlaceVisitActivity(activity) && startedAfter(startingDate)(activity);
-
+  console.log('json_convertelocationata',json);
   return json.timelineObjects
     .filter(activityFilter)
     .map(activityTransformer(testResult));

@@ -3,6 +3,7 @@ import forge from "node-forge";
 import EthCrypto from "eth-crypto";
 import jaysonBrowserClient from "jayson/lib/client/browser";
 import { utils } from "enigma-js";
+
 const JSON_RPC_Server = process.env.REACT_APP_ENCLAVE_URL;
 
 const callServer = function (request, callback) {
@@ -31,8 +32,7 @@ const client = jaysonBrowserClient(callServer, {});
 
 function getClientKeys(seed = "") {
   if (seed === "") {
-    const characters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     for (let i = 0; i < 9; i++) {
       seed += characters.charAt(Math.floor(Math.random() * characters.length));
     }
@@ -105,6 +105,7 @@ async function addPersonalData(encryptedUserId, encryptedData, publicKey) {
   const { result } = await getEncryptionKeyResult;
   return result;
 }
+
 async function findMatchCall(encryptedUserId, publicKey) {
   const findMatchResult = await new Promise((resolve, reject) => {
     client.request(
@@ -127,6 +128,8 @@ async function findMatchCall(encryptedUserId, publicKey) {
 }
 
 export async function addData(userId, data) {
+  console.log('addData parameters: ', userId, data);
+  
   let { publicKey, privateKey } = getClientKeys();
   let taskPubKey = await getEncryptionKey(publicKey);
   let encryptedUserId = await encrypt(taskPubKey, privateKey, userId);
@@ -134,13 +137,13 @@ export async function addData(userId, data) {
   let addDataResult = await addPersonalData(
     encryptedUserId,
     encryptedData,
-    taskPubKey
+    publicKey
   );
   return addDataResult;
 }
 
 export async function findMatch(userId) {
-
+  console.log('findMatch_userid', userId);
   let { publicKey, privateKey } = getClientKeys();
 
   try {
@@ -156,7 +159,7 @@ export async function findMatch(userId) {
         findMatchResult.findMatch.encryptedOutput
       );
     }else{
-      console.log('error in findMatch');
+      console.log('Error in findMatch. Time to debug...');
     }
   } catch (err) {
     throw err;

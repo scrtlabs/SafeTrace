@@ -48,10 +48,10 @@ const Contribute = ({ history }) => {
       });
 
   const handleFileSubmit = (file) => {
-    console.log('json_file_uploaded',file);
     parseJsonFile(file)
       .then((json) => {
-        const data = convertLocationData(json, testResult === "positive");
+        const data = convertLocationData(json, testResult === "positive");        
+        console.log('json_converted_locationData',json);
         addData(me._id, JSON.stringify(data))
           .then(() => {
             Flash.set(
@@ -67,7 +67,7 @@ const Contribute = ({ history }) => {
 
   const handleTestDateChange = (date) => setTestDate(date);
   const handleNextClick = () => {
-    console.log('step',step, testResult);
+    //If use had done a test, then  send the report, if not just let to go to the next page
     if (step === 1 && testResult !== "not_tested") {
       sendReport();
     } else {

@@ -52,7 +52,7 @@ const Results = () => {
         
         if (response.length) {
           findGeoLocations(response).then((res) => {
-            console.log(response);
+            console.log('response', response);
             return(response);
             // setResults(
             //   res
