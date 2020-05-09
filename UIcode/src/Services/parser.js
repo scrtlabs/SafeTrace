@@ -32,8 +32,8 @@ export const startedAfter = (timestamp) => (location) =>
 export const activityTransformer = (testResult) => (activity) => ({
   lat: activity.placeVisit.location.latitudeE7 / 10000000,
   lng: activity.placeVisit.location.longitudeE7 / 10000000,
-  startTS: activity.placeVisit.duration.startTimestampMs / 1,
-  endTS: activity.placeVisit.duration.endTimestampMs / 1,
+  startTS: Math.round(activity.placeVisit.duration.startTimestampMs / 1000),
+  endTS: Math.round(activity.placeVisit.duration.endTimestampMs / 1000),
   testResult,
 });
 

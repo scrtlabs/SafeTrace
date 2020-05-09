@@ -53,31 +53,31 @@ const Results = () => {
         if (response.length) {
           findGeoLocations(response).then((res) => {
             console.log('response', response);
-            return(response);
-            // setResults(
-            //   res
-            //     .filter(
-            //       ({ geocodeResponse }) => geocodeResponse.status === "OK"
-            //     )
-            //     .map(extractTableData)
-            //     .reduce((acc, current) => {
-            //       const existingIdx = findMatching(acc, current);
-            //       if (existingIdx !== -1) {
-            //         acc[existingIdx].numberOfMatches++;
-            //         return acc;
-            //       }
-            //       return [
-            //         ...acc,
-            //         {
-            //           location: current.location,
-            //           address: current.address,
-            //           date: current.date,
-            //           time: current.time,
-            //           numberOfMatches: 1,
-            //         },
-            //       ];
-            //     }, [])
-            // );
+            //return(response);
+            setResults(
+              res
+                .filter(
+                  ({ geocodeResponse }) => geocodeResponse.status === "OK"
+                )
+                .map(extractTableData)
+                .reduce((acc, current) => {
+                  const existingIdx = findMatching(acc, current);
+                  if (existingIdx !== -1) {
+                    acc[existingIdx].numberOfMatches++;
+                    return acc;
+                  }
+                  return [
+                    ...acc,
+                    {
+                      location: current.location,
+                      address: current.address,
+                      date: current.date,
+                      time: current.time,
+                      numberOfMatches: 1,
+                    },
+                  ];
+                }, [])
+            );
           });
         }
       });
