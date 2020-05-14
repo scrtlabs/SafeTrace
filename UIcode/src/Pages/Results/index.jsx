@@ -52,20 +52,20 @@ const Results = () => {
         
         if (response.length) {
           findGeoLocations(response).then((res) => {
-            console.log('response', response);
-            //return(response);
+            console.log('response2',response);
+            let res2 = [ res ];
+            console.log('findgelocations', res2);
+            console.log('filtered', res2.map(extractTableData));
+
             setResults(
-              res
+              res2
                 .filter(
                   ({ geocodeResponse }) => geocodeResponse.status === "OK"
                 )
                 .map(extractTableData)
                 .reduce((acc, current) => {
                   const existingIdx = findMatching(acc, current);
-                  if (existingIdx !== -1) {
-                    acc[existingIdx].numberOfMatches++;
-                    return acc;
-                  }
+                  console.log(current);
                   return [
                     ...acc,
                     {
@@ -78,6 +78,7 @@ const Results = () => {
                   ];
                 }, [])
             );
+            console.log('setResults',results);
           });
         }
       });

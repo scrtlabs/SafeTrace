@@ -17,6 +17,7 @@ const StyledTable = styled.table`
 `;
 
 const ResultsTable = ({ results }) => {
+  console.log('results_table',results);
   return (
     <StyledTable>
       <thead>
