@@ -1,11 +1,21 @@
-# COVID-19 Self-reporting with Privacy
-Privacy preserving voluntary COVID-19 self-reporting platform for contact tracing. Share your (encrypted) location history and test status, get a notification if you have been in proximity to higher risk locations. 
+# Enigma Confidential Computing Platform
+Enigma Confidential Computing Platform (ECCP) is an API which connects to a privacy-preserving storage and private computation service. ECCP allows organizations to share data in encrypted form, perform analysis to generate insights and to capture value without worrying about data liability or data privacy concerns.
 
+This repository is for SafeTrace, an implementation of ECCP for privacy preserving contract tracing. SafeTrace allows users to privately share (encrypyted) location history and test status, to get notifications if they have been in close proximity with diagnosed individuals and to monitor higher risk locations in real-time. 
 
-## Overview & Motivation
-Social contact tracing based on mobile phone data has been used to track and mitigate the spread of COVID-19[[1]](https://www.nature.com/articles/d41586-020-00740-y). However, this is a significant privacy risk, and sharing these data may disproportionately affect at-risk populations, who could be subject to discrimination and targeting. In certain countries, obtaining this data en masse is not legally viable. 
+This repository is aimed to be a sample implementation of ECCP for contact tracing in the fight against Covid19. The same architecture can be used for a variety of use-cases that involve fraud in online platforms and marketplaces, machine learning for training data sets, consolidating data set and numerous other use cases. In order to use this architecture for any other user case, check out:
+- the API folder to see how clients interact with the server. This focuses on local data encryption and communication of encrypted data to the server
+- the Client folder for a sample integration for SafeTrace
+- this document (https://github.com/enigmampc/SafeTrace/blob/7094bf340e53743950903a2febd8f3c780490296/enclave/safetrace/enclave/src/data.rs#L228) to see individual matching algorithm for SafeTrace. This algorithm can be changed with other any other algorithm for a desired use-case.
 
-We propose a privacy-preserving, voluntary self-reporting system for sharing detailed location data amongst individuals and organizations. Users will be able to encrypt and share complete location history, and their current status (positive, negative, unknown). Users will be able to update their status if it changes. This system will compute on shared, aggregate data and return location-based social contact analytics. 
+## Overview & Motivation for SafeTrace
+Contact-tracing is the use of information about where an individual has been, and who they may have come into contact with, as a way to track and manage the spread of viruses. Smartphone data provides a ready source of highly detailed information that can be used to automate contact-tracing.
+Automated contact-tracing applications face two problems:
+- *Data Privacy*: Contact-tracing relies on accurate and granular data about the user’s location and/or proximity to other users. This data is used in conjunction with a user's infection status to determine their risk level. Collecting this type of information about users places a significant data security burden on whatever organization is gathering the data or has access to it. Methods which are privacy preserving largely sacrifice data utility.
+- *Data Utility*: Existing privacy-preserving contact-tracing methods (bluetooth) only inform individuals of their risk, and are of limited use to health officials, researchers, or crisis response, who need aggregate data for research and heat maps.
+
+We propose SafeTrace, which is an API which connects to a privacy-preserving storage and private computation service. 
+This means that applications (web or mobile) can enable users to submit encrypted location and health status data for analysis via the SafeTrace API, without ever revealing plaintext data to anyone, including the SafeTrace server operator or the application. This relies on Trusted Execution Environments (TEE), a technology for preserving data privacy while data is in-use. Then, SafeTrace analysis can produce two types of reports-- individual and global-- based on the aggregate data submitted by all applications. SafeTrace can be used to overcome both privacy concerns and data utility problems for contact-tracing.
 
 This system relies on 3 core services:
 
@@ -18,17 +28,18 @@ Any user who has Location Services active with Google is able to obtain a JSON f
 ### A Privacy-preserving Computation service
 
 Private computation is a term for performing tasks on data that is never viewed in plaintext. Our system will use private computation to generate individual and global analytics. In this scenario, private computation techniques could be employed to:
-- Identify users who have been in close proximity with individuals who have tested positive
-- Add noise to user locations, and then output that data to a map without revealing the original data to anyone, including application developers or server owners
-- Analyse and create clusters from user data, and output those results to a map without revealing original data to anyone
-TBD (we welcome suggestions for computational analysis that provides privacy guarantees as well as useful, high-fidelity output data)
+- Identify users who have been in close proximity with individuals who have tested positive for individiual analysis
+- Create heatmaps from diagnosed patients' location data, using clustering algorithms to prevent revealing of data to anyone, and output those results to a map
+- Apply differential privacy techniques to diagnosed patient data to be used for research purposes
 - Initially, we propose using an Intel-SGX based service that uses [Trusted Execution Environments ](https://software.intel.com/en-us/sgx/details) (TEE). Additional alternative private compute techniques include homomorphic encryption, multiparty computation, and differential privacy.
+
+***Note: Privacy preserving analysis listed above can be extended to any kind of analysis including machine learning for other use-cases that levereage Enigma Confidential Computing Platform***
 
 ### Visualization and notification services
 
-Our working assumption is to:
-- Inform individuals who have been in close proximity of individuals who have tested positive via a notification system. This section is TBD based on requirements defined by experts
-- Create a visualization service for users (individual and social organizations) to track the current status virus outbreak at a granular level. 
+A graphical user interface (GUI) to:
+- Inform individuals who have been in close proximity of diagnosed patients (time and location) via a notification system.
+- Create a heatmaps for users (individual and social organizations) to track the current status virus outbreak at a granular level. 
 
 These diagrams provide an overview of how these services connect and how data is accessed and controlled throughout. *Note: data is encrypted on the client side, remains encrypted in transit, and is protected by TEE security and privacy guarantees during compute.*
 
@@ -37,15 +48,17 @@ These diagrams provide an overview of how these services connect and how data is
 
 ## User Story
 
-1. User creates an account (email and password)
+1. User creates an account (email and password). 
 2. User views instructions for retrieving location data from Google Location services. 
 3. User reviews Google Maps timeline, and optionally removes any sensitive activity (i.e., home address, work address, others)
 4. User exports her data via Google Takeout service
 5. User returns to app UI and uploads JSON file from Google Takeout for the previous month or two
+*Steps 1-5 can also be replaced by an integration to mobile application that collects user location data such as Yelp.*
 6. User indicates her current testing status (positive, negative, untested) and the date of the test (today's date if untested)
 7. User submits data to compute service (data is encrypted locally by the app prior to sending)
 8. User can now view "matches", where her data overlaps in time and proximity to a user reporting a positive test result
-9. User can opt in to receive emails if new matches occur, and prompting her to update her data and infection status periodically. 
+9. User can opt in to receive emails if new matches occur, and prompting her to update her data and infection status periodically.
+10. User can use the global view mode to see a heatmap of locations of diagnosed patients.
 
 
 ## System Architecture
@@ -59,8 +72,10 @@ The system is made up from the following components:
 - contains the self-reporting UI
 - displays the individual proximity match report from post-compute results
 - displays a heat map view of positively tested participants (global results) from post-compute results
+*This component can would be replaced in case mobile application that collects user location uses SafeTrace API.*
 
 **Login / Unique identifier DB**
+*This component can would be replaced in case mobile application that collects user location uses SafeTrace API.*
 
 **Private Compute Service**
 
@@ -81,8 +96,6 @@ The system is made up from the following components:
     - Current infection status (positive, negative, untested)
     - Date test was administered
 - Runs data formatting and simple data validation on the browser
-**Open Questions**
-What are our options for data validation?
 
 ![img](docs/diagrams/adding-data.png)
 
@@ -92,7 +105,8 @@ What are our options for data validation?
 - Proves integrity via Intel Attestation Service (IAS)
 
 Input:
-Encrypted user location histories in Google Takeout JSON format
+- Encrypted user location histories in Google Takeout JSON format
+- Encrypted (self-reported) testing status
 
 Output:
 - Positive matches between users who have had positive test results and users who overlapped with them on time and proximity for individual reporting
@@ -104,31 +118,6 @@ Open Questions
 Current thinking is to have two services result from the computation:
 - A notification service for users who are untested/negative that tells them if they have overlapped in time/proximity with positive test cases [Link to detailed description]
 - An aggregate heatmap of locations where individuals with positive tests have been [Link to detailed description]
-
-Open Questions
-
-## Get Involved
-Below is a list of areas that we need help with and our open questions
-- Epidemiologists / public health: 
-We need to solicit feedback on how this data is most actionable both for individuals and also the society at large. The goal of individual reporting is to assess situations of close proximity to high risk individuals. This enables us to take better measures. We need feedback to understand what distance and time difference should trigger a high risk scenario (i.e 2 individuals within 10ft in a 1 day window can infect one another). We also would welcome feedback on our approach to global view visualizer. Please see issues X and Y that explain these asks in more detail.
-
-- Rust programmers, developers and engineers with Intel SGX experience
-TBD - Enigma team is currently volunteering to lead this part. We would always welcome more hands
-
-- Mapping/visualization and experience working with Google Location data:  
-
-- Notification / alert system:
-We would like individuals who opt in to receive emails (or other forms of notification like text) if they are found to be in a high risk area. We need help implementing the notification system. Please see the following issue for more details
-
-- Data privacy (i.e., able to identify data leakage concerns / mitigations)
-
-- Front-end design
-Front-end development for self-reporting UI 
-
-- Devops
-
-- Volunteers to provide sample data:
-Our proposal only provides value if volunteers participate. We welcome everyone who’s tested for Covid-19 to share their location history in a privacy preserving manner when we have an initial prototype
 
 ## LICENSE
 
