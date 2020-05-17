@@ -11,6 +11,8 @@ import { fromLatLng } from "Services/geocode";
 import { map } from "Utils/array";
 import ResultsTable from "./ResultsTable";
 
+
+
 const Wrapper = styled.div`
   padding-top: 50px;
 `;
@@ -24,19 +26,21 @@ const findMatching = (matches, target) =>
   matches.findIndex(compareWithMatch(target));
 
 const findGeoLocations = async (matches) =>
-  Axios.all(matches.map((match) => fromLatLng(match.lat, match.lng))).then(
-    map((geocodeResponse, idx) => ({
+Axios.all(matches.map((match) => fromLatLng(match.lat, match.lng))).then(
+  Axios.spread((...responses) =>
+    responses.map((geocodeResponse, idx) => ({
       idx,
       geocodeResponse,
       enclaveResponse: matches[idx],
     }))
-  );
+  )
+);
 
 const extractTableData = ({ geocodeResponse, enclaveResponse }) => ({
   location: geocodeResponse.results[0].formatted_address,
   address: geocodeResponse.results[0].formatted_address,
-  date: format(enclaveResponse.timestamp, "MM/dd"),
-  time: formatDistanceToNow(fromUnixTime(enclaveResponse.timestamp)),
+  date: format(enclaveResponse.startTS, "MM/dd"),
+  time: formatDistanceToNow(fromUnixTime(enclaveResponse.startTS)),
 });
 
 const Results = () => {
@@ -53,7 +57,7 @@ const Results = () => {
         if (response.length) {
           findGeoLocations(response).then((res) => {
             console.log('response2',response);
-            let res2 = [ res ];
+            let res2 = res;
             console.log('findgelocations', res2);
             console.log('filtered', res2.map(extractTableData));
 
