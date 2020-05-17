@@ -10,7 +10,7 @@ services:
     volumes:
       - ./data:/data/db
     ports:
-      - "10975:27017"
+      - "10980:27017"
 #  admin-mongo:
 #    container_name: adminmongo
 #    image: 0x59/admin-mongo:latest
@@ -22,15 +22,15 @@ services:
 #      - DB_HOST=mongo
 #    links:
 #      - mongo
-  # app:
-  #   container_name: apiServerUsers
-  #   #restart: always
-  #   build:
-  #     context: ./app
-  #     dockerfile: ./Dockerfile
-  #   volumes:
-  #     - ./app:/usr/src/apiServerUsers
-  #   ports:
-  #     - "4080:4080"
-  #   links:
-  #     - mongo
+  app:
+    container_name: apiServerUsers
+    #restart: always
+    build:
+      context: ./app
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./app:/usr/src/apiServerUsers
+    ports:
+      - "4080:4080"
+    links:
+      - mongo
