@@ -43,12 +43,9 @@ const NavLi = styled.li`
 `;
 
 const Title = styled.h1`
-  font-size: 16px;
-  width: 400px;
-  text-align: Center;
+  width: 250px;
+  margin-left: -50px;
   display: inline-block;
-  padding: 0;
-  margin: 0;
   font-family: Roboto;
   font-style: normal;
   font-weight: bold;
