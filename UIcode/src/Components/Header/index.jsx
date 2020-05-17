@@ -47,9 +47,17 @@ const Title = styled.h1`
   width: 400px;
   text-align: Center;
   display: inline-block;
-  font-weight: 600;
   padding: 0;
   margin: 0;
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 26px;
+/* identical to box height, or 108% */
+
+
+color: #383838;
 `;
 
 const StyledNavLink = styled(NavLink)`

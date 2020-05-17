@@ -20,7 +20,8 @@
     "react-router-dom": "^4.1.2",
     "react-scripts": "^3.4.1",
     "react-spinners": "^0.8.1",
-    "styled-components": "^5.0.1"
+    "styled-components": "^5.0.1",
+    "typeface-roboto": "0.0.75"
   },
   "scripts": {
     "start": "react-scripts start",

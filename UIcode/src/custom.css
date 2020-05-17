@@ -1,0 +1,38 @@
+
+
+
+.card-title, h2{
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 38px;
+    line-height: 54px;
+  }
+
+.card-subtitle, h3 {
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 24px;
+    line-height: 62px;
+}
+
+.card-img-top{
+    max-width: 500px;
+
+}
+
+.card-text {
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 18px;
+    line-height: 30px;
+    /* or 167% */
+    letter-spacing: -0.000427656px;
+    color: #383838;
+    width: 80%;
+}
+.card {
+    padding-bottom: 30px;
+}

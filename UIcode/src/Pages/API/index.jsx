@@ -6,7 +6,7 @@ class API extends React.Component {
       <div>
         <Card border="light">
           <Card.Body>
-            <Card.Title>API Developers are coming Soon!</Card.Title>
+            <Card.Subtitle>API Developers are coming Soon!</Card.Subtitle>
             <Card.Text></Card.Text>
           </Card.Body>
         </Card>

@@ -13,6 +13,7 @@ import { report } from "Services/api";
 import { addData } from "Services/enclave";
 import Authorized from "Sections/Authorized";
 import Flash from "Components/FlashMessage/Flash";
+import 'typeface-roboto';
 
 const Wrapper = styled.div`
   padding-top: 50px;

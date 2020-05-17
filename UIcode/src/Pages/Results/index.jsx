@@ -37,7 +37,7 @@ Axios.all(matches.map((match) => fromLatLng(match.lat, match.lng))).then(
 );
 
 const extractTableData = ({ geocodeResponse, enclaveResponse }) => ({
-  location: geocodeResponse.results[0].formatted_address,
+  location: geocodeResponse.results[4].formatted_address,
   address: geocodeResponse.results[0].formatted_address,
   date: format(enclaveResponse.startTS, "MM/dd"),
   time: formatDistanceToNow(fromUnixTime(enclaveResponse.startTS)),
@@ -49,27 +49,20 @@ const Results = () => {
   const { isLoggedIn, me } = useContext(authContext);
   useEffect(() => {
     if (isLoggedIn && me._id && !request) {
-      console.log('me_id',me._id);
       const promise = findMatch(me._id);
       setRequest(promise);
       promise.then((response) => {
         
         if (response.length) {
           findGeoLocations(response).then((res) => {
-            console.log('response2',response);
-            let res2 = res;
-            console.log('findgelocations', res2);
-            console.log('filtered', res2.map(extractTableData));
-
             setResults(
-              res2
+              res
                 .filter(
                   ({ geocodeResponse }) => geocodeResponse.status === "OK"
                 )
                 .map(extractTableData)
                 .reduce((acc, current) => {
                   const existingIdx = findMatching(acc, current);
-                  console.log(current);
                   return [
                     ...acc,
                     {
@@ -82,14 +75,12 @@ const Results = () => {
                   ];
                 }, [])
             );
-            console.log('setResults',results);
           });
         }
       });
     }
   }, [isLoggedIn, me, request]);
 
-  console.log({ results });
   return (
     <Wrapper>
       <FlashMessage />

@@ -16,23 +16,27 @@ const Step3 = ({ onFileChange, onSubmit }) => {
         downloaded file and locate your most recent month of Location History.
         Here is a step-by-step guide below:
       </p>
+      
       <h3>Step 1</h3>
       <p>
         Make sure your <b>“Location History”</b> is turned <b>ON</b> at{" "}
-        <a href="https://takeout.google.com/settings/takeout">Google Takeout</a>
-        .
+        <a href="https://takeout.google.com/settings/takeout">Google Takeout</a>.
       </p>
+      <img src="images/contribute_upload_step1.png" />
+      <div style={{height: "50px"}}></div>
       <h3>Step 2</h3>
       <p>
         Download your “<b>“Location History”</b> from{" "}
-        <a href="https://takeout.google.com/settings/takeout">Google Takeout</a>
-        .
+        <a href="https://takeout.google.com/settings/takeout">Google Takeout</a>.
       </p>
+      <img src="images/contribute_upload_step2.png" />
+      <div style={{height: "50px"}}></div>
       <h3>Step 3</h3>
       <p>
         Select “export once”, set file type to .zip, and leave the other options
         as they are.
       </p>
+      <div style={{height: "50px"}}></div>
       <h3>Step 4</h3>
       <p>
         When you receive your Takeout order from Google, unzip the file and
