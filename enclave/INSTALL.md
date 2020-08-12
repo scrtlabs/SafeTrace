@@ -18,7 +18,7 @@ First, make sure you have Rust installed: https://www.rust-lang.org/tools/instal
 
     ```bash
     cargo install bindgen
-    ```  
+    ```
 
 Then you can use this script (or run the commands one-by-one), which was tested on Ubuntu 18.04 with SGX driver/sdk version 2.6:
 
@@ -150,9 +150,9 @@ sudo $HOME/.sgxsdk/sgx_linux_x64_driver_*.bin
 
    ```
 
-   *Note: This setup assumes that you run the above command in your $HOME folder, and thus you have the above repo cloned at $HOME/sgx. If you clone it anywhere else, update Line 26 of the [Makefile](enclave/safetrace/Makefile) accordingly:*
+   *Note: This setup assumes that you run the above command in your $HOME folder, and thus you have the above repo cloned at $HOME/sgx. If you clone it anywhere else, update Line 24 of the [Makefile](safetrace/Makefile) accordingly:*
 
-   ```bash
+   ```make
    SGX_SDK_RUST ?= $(HOME)/sgx
    ```
 
