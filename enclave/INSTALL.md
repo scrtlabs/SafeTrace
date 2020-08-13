@@ -185,10 +185,12 @@ sudo apt purge -y libsgx-enclave-common libsgx-enclave-common-dev libsgx-urts sg
 
 # References
 
-This file was forked from the **enigmampc/EnigmaBlockchain** repo: [/docs/dev/setup-sgx.md](https://github.com/enigmampc/EnigmaBlockchain/blob/master/docs/dev/setup-sgx.md). The two notable differences are as follows:
+This file was forked from the **enigmampc/SecretNetwork** repo:
+[docs/validators-and-full-nodes/setup-sgx.md](https://github.com/enigmampc/SecretNetwork/blob/master/docs/validators-and-full-nodes/setup-sgx.md)
+The two notable differences are as follows:
 
-1. This repo depends on apache/incubator-teaclave-sgx-sdk version `1.0.9`, whereas enigmampc/EnigmaBlockchain depends on version `1.1.1`.
-2. In turn incubator-teaclave-sgx-sdk depends on SGX driver and SDK version `2.6`, whereas enigmampc/EnigmaBlockchain depends on version `2.9`.
+1. This repo depends on apache/incubator-teaclave-sgx-sdk version `1.0.9`, whereas enigmampc/SecretNetwork depends on version `1.1.2`.
+2. In turn incubator-teaclave-sgx-sdk depends on SGX driver and SDK version `2.6`, whereas enigmampc/SecretNetwork depends on the latest version.
 
 ## Additional References##
 
