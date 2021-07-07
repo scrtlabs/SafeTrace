@@ -12,6 +12,7 @@ crate-type = ["staticlib"]
 default = []
 
 [dependencies]
+GSL = "0.4"
 enigma-types = { git = "https://github.com/enigmampc/enigma-core.git", branch="develop", default-features = false, features = ["sgx"] }
 enigma-crypto = { git = "https://github.com/enigmampc/enigma-core.git", branch="develop", default-features = false, features = ["sgx", "asymmetric"] }
 enigma-tools-t = { git = "https://github.com/enigmampc/enigma-core.git", branch="develop" }

@@ -12,6 +12,8 @@ use serde_json::{Value, json};
 use serde::{Deserialize, Serialize};
 use rmp_serde::{Deserializer, Serializer};
 
+use rgsl::types::Rng;
+
 use sgx_tseal::{SgxSealedData};
 use sgx_types::marker::ContiguousMemory;
 use std::untrusted::fs::File;
@@ -29,6 +31,7 @@ pub enum Error {
     SliceError,
     UnsealError(sgx_status_t),
     SerializeError,
+    RandomGeneratorError,
     Other
 }
 
@@ -247,9 +250,12 @@ pub fn find_match_internal(
                             // their latitudes (or the distance between lats will be smaller than the distance * cos(45))
                             // Source:
                             // https://stackoverflow.com/questions/5031268/algorithm-to-find-all-latitude-longitude-locations-within-a-certain-distance-fro
-                            if (e.lat - d.lat).abs() * 111000.0 <  DISTANCE * 0.71 {
+                               
+                               if (e.lat - d.lat).abs() * 111000.0 <  DISTANCE * 0.71 {
+                                   let mut r = Rng::new(&rgsl::types::rng::algorithms::taus()).ok_or(Error::RandomGeneratorError)?;
+                                   let lapnoise = rgsl::randist::laplace::laplace(&mut r, 0.87).abs()*2.0;
                                 // then we can run a more computationally expensive and precise comparison
-                                if (e.lat.sin()*d.lat.sin()+e.lat.cos()*d.lat.cos()*(e.lng-d.lng).cos()).acos() * EARTH_RADIUS < DISTANCE {
+                                if (e.lat.sin()*d.lat.sin()+e.lat.cos()*d.lat.cos()*(e.lng-d.lng).cos()).acos() * EARTH_RADIUS - lapnoise < DISTANCE {
                                     results.push(d.clone());
                                 }
                             }
